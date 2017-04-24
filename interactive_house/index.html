@@ -208,7 +208,7 @@
 				var onProgress = function ( xhr ) {
 					if ( xhr.lengthComputable ) {
 						var percentComplete = xhr.loaded / xhr.total * 100;
-						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+						//console.log( Math.round(percentComplete, 2) + '% downloaded' );
 					}
 				};
 
@@ -236,6 +236,8 @@
 						object.children[56].material.side = THREE.DoubleSide;
 
 						scene.add( object );
+						document.getElementById('preloader').remove();
+
 
 					}, onProgress, onError );
 
@@ -263,7 +265,6 @@
         document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
-				document.getElementById('preloader').remove();
 
 				panocloseButton.addEventListener( 'click', function () {
 					disposePanorama();
