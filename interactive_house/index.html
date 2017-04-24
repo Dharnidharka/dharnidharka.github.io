@@ -109,12 +109,14 @@
 			#download:hover{
 				background-color: #eee;
 			}
+			div#preloader { position: fixed; left: 0; top: 0; z-index: 999; width: 100%; height: 100%; overflow: visible; background: #333 url('loading.gif') no-repeat center center; }
 		</style>
 	</head>
 
 	<body>
 
 			<a id="download" style="text-decoration: none; color: #333;" href="models/houseplan.pdf" download>Download</a>
+			<div id="preloader"></div>
 
 		<div id="panorama-container">
 
@@ -261,6 +263,7 @@
         document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
+				document.getElementById('preloader').remove();
 
 				panocloseButton.addEventListener( 'click', function () {
 					disposePanorama();
