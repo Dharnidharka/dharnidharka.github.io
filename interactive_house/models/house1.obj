@@ -43332,7 +43332,7 @@ vt 1.0000 1.0000 0.0000
 # 4 texture coords
 
 g Plane001
-usemtl plane
+usemtl glass_2
 s 1
 f 11247/10807/7639 11248/10808/7639 11249/10809/7639 11250/10810/7639
 # 1 polygons

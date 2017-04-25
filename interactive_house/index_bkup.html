@@ -147,12 +147,11 @@
 		<script src="js/loaders/MTLLoader.js"></script>
 		<script src="js/loaders/OBJLoader.js"></script>
     <script src="js/panolens.min.js"></script>
+
+
     <script src="js/controls/OrbitControls.js"></script>
 		<script src="js/Detector.js"></script>
-		<script src="js/SkyShader.js"></script>
 		<script src="js/libs/stats.min.js"></script>
-		<script src="js/libs/dat.gui.min.js"></script>
-
 
 		<script>
 
@@ -164,7 +163,6 @@
 			var mouseX = 0, mouseY = 0;
       var raycaster = new THREE.Raycaster();
 			var raycaster0 = new THREE.Raycaster();
-			var sky, sunSphere;
 
       var mouse = new THREE.Vector2();
 
@@ -184,54 +182,13 @@
 			init();
 			animate();
 
-			function initSky() {
-				// Add Sky Mesh
-				sky = new THREE.Sky();
-				scene.add( sky.mesh );
-				// Add Sun Helper
-				sunSphere = new THREE.Mesh(
-					new THREE.SphereBufferGeometry( 20000, 16, 8 ),
-					new THREE.MeshBasicMaterial( { color: 0xffffff } )
-				);
-				sunSphere.position.y = - 700000;
-				sunSphere.visible = false;
-				scene.add( sunSphere );
-				/// GUI
-				var effectController  = {
-					turbidity: 10,
-					rayleigh: 2,
-					mieCoefficient: 0.005,
-					mieDirectionalG: 0.8,
-					luminance: 1,
-					inclination: 0.49, // elevation / inclination
-					azimuth: 0.25 // Facing front,
-				};
-				var distance = 40000;
-				function guiChanged() {
-					var uniforms = sky.uniforms;
-					uniforms.turbidity.value = effectController.turbidity;
-					uniforms.rayleigh.value = effectController.rayleigh;
-					uniforms.luminance.value = effectController.luminance;
-					uniforms.mieCoefficient.value = effectController.mieCoefficient;
-					uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
-					var theta = Math.PI * ( effectController.inclination - 0.5 );
-					var phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
-					sunSphere.position.x = distance * Math.cos( phi );
-					sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
-					sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
-					sunSphere.visible = effectController.sun;
-					sky.uniforms.sunPosition.value.copy( sunSphere.position );
-					renderer.render( scene, camera );
-				}
-				guiChanged();
-			}
 
 			function init() {
 
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 10, 2000000 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
         camera.position.y = 0;
         camera.position.z = 20;
 
@@ -269,16 +226,15 @@
 					objLoader.setMaterials( materials );
 					objLoader.setPath( 'models/' );
 					objLoader.load( 'house1.obj', function ( object ) {
-						object.scale.set(3,3,3);
+
 						object.rotation.x=-Math.PI/2;
-            object.position.y=-20;
+            object.position.y=-10;
             mesh = object;
             object.children[61].visible=false;
             object.children[62].visible=false;
             object.children[63].visible=false;
 						object.children[56].material.side = THREE.DoubleSide;
-						object.receiveShadow = true;
-						object.castShadow = true;
+
 						scene.add( object );
 
 					}, onProgress, onError );
@@ -290,8 +246,14 @@
 
 				renderer = new THREE.WebGLRenderer({ antialias: true });
 				renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setClearColor(0x999999);
+				scene.fog = new THREE.Fog(0x222233, 0, 20000);
+				renderer.setClearColor( scene.fog.color, 1 );
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapCullFace = THREE.CullFaceBack;
 				container.appendChild( renderer.domElement );
 
         controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -300,12 +262,8 @@
 				//controls.enableDamping = true;
 				//controls.dampingFactor = 0.25;
         controls.minDistance = 0;
-        controls.maxDistance = 80;
+        controls.maxDistance = 100;
         controls.maxPolarAngle = Math.PI/2;
-				controls.addEventListener( 'change', render );
-
-
-				initSky();
 
 				window.addEventListener( 'resize', onWindowResize, false );
         document.addEventListener( 'mousedown', onDocumentMouseDown, false );
