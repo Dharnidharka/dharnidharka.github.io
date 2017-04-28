@@ -281,6 +281,11 @@
 						object.castShadow = true;
 						scene.add( object );
 						document.getElementById('preloader').remove();
+						controls.center =  new THREE.Vector3(
+						    0,
+						    -20,
+						    0
+						);
 
 					}, onProgress, onError );
 
@@ -303,6 +308,7 @@
         controls.minDistance = 0;
         controls.maxDistance = 80;
         controls.maxPolarAngle = Math.PI/2;
+
 				controls.addEventListener( 'change', render );
 
 
