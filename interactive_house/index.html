@@ -152,8 +152,15 @@
 		<script src="js/SkyShader.js"></script>
 		<script src="js/libs/stats.min.js"></script>
 		<script src="js/libs/dat.gui.min.js"></script>
-
-
+		<script src="js/jquery-1.9.1.js"></script>
+		<script src="js/jquery-ui.js"></script>
+		<link rel=stylesheet href="css/jquery-ui.css" />
+		<link rel=stylesheet href="css/info.css"/>
+		<script src="js/info.js"></script>
+		<div id="infoButton"></div>
+		<div id="infoBox" title="Demo Information">
+			Click on the roof to get started.
+		</div>
 		<script>
 
 			var container, stats, controls;
@@ -383,18 +390,35 @@
 					var intersects0 = raycaster0.intersectObjects(scene.children, true);
           if (intersects0.length) {
 						intersect=intersects0[0].object;
-						if(intersects0[0].object.name=="mark01" || intersects0[0].object.name=="mark02" || intersects0[0].object.name=="mark03"){
+						if(intersects0[0].object.name=="mark01" || intersects0[0].object.name=="mark02" || intersects0[0].object.name=="mark03" || intersects0[0].object.name=="roof"){
 									mark=intersects0[0].object;
-									intersects0[0].object.material.color.r=0.1289;
-									intersects0[0].object.material.color.g=0.7422;
-									intersects0[0].object.material.color.b=0.8672;
-
+									if(intersects0[0].object.name != "roof"){
+										intersects0[0].object.material.color.r=0.1289;
+										intersects0[0].object.material.color.g=0.7422;
+										intersects0[0].object.material.color.b=0.8672;
+									}
+									else{
+										intersects0[0].object.material.color.r=0.988;
+										intersects0[0].object.material.color.g=0.988;
+										intersects0[0].object.material.color.b=0.988;
+									}
+									container.style.cursor="pointer";
 						}
 						if(mark && intersect != mark){
-							mark.material.color.r=0.7686;
-							mark.material.color.g=0.3451;
-							mark.material.color.b=0.8824;
+							if(mark.name != "roof"){
+								mark.material.color.r=0.7686;
+								mark.material.color.g=0.3451;
+								mark.material.color.b=0.8824;
+							}
+							else{
+								mark.material.color.r=0.588;
+								mark.material.color.g=0.588;
+								mark.material.color.b=0.588;
+							}
+							container.style.cursor="auto";
 						}
+
+
 				}
 				mouseover = 0;
 			}
