@@ -132,7 +132,7 @@
 					//keys.start(note.midi, note.time, 0, 16, 0, note.velocity);
 
 				}, midi.tracks[0].notes).start();
-				midiPart.loop = false;
+				midiPart.loop = true;
 				midiPart.loopEnd = midi.duration;
 				Tone.Transport.start('4*4n');
 			});
