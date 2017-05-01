@@ -14,75 +14,75 @@
 
       '35': new Tone.Player({
                 "url" : "./assets/audio/BD2.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '36': new Tone.Player({
                 "url" : "./assets/audio/BD1.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '37': new Tone.Player({
                 "url" : "./assets/audio/RS.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '38': new Tone.Player({
                 "url" : "./assets/audio/SD1.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '40': new Tone.Player({
                 "url" : "./assets/audio/SD2.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '41': new Tone.Player({
                 "url" : "./assets/audio/T1.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '42': new Tone.Player({
                 "url" : "./assets/audio/HH1.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '43': new Tone.Player({
                 "url" : "./assets/audio/T2.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '45': new Tone.Player({
                 "url" : "./assets/audio/T3.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '46': new Tone.Player({
                 "url" : "./assets/audio/OH.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '47': new Tone.Player({
                 "url" : "./assets/audio/P1.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '48': new Tone.Player({
                 "url" : "./assets/audio/P2.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '50': new Tone.Player({
                 "url" : "./assets/audio/P3.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '51': new Tone.Player({
                 "url" : "./assets/audio/S1.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '60': new Tone.Player({
                 "url" : "./assets/audio/BASS.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '62': new Tone.Player({
                 "url" : "./assets/audio/MIDS.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '64': new Tone.Player({
                 "url" : "./assets/audio/LEADS.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster(),
       '65': new Tone.Player({
                 "url" : "./assets/audio/FX.caf",
-                "loop" : true
+                "loop" : false
             }).toMaster()
   };
 
@@ -132,7 +132,7 @@
 					//keys.start(note.midi, note.time, 0, 16, 0, note.velocity);
 
 				}, midi.tracks[0].notes).start();
-				midiPart.loop = true;
+				midiPart.loop = false;
 				midiPart.loopEnd = midi.duration;
 				Tone.Transport.start('4*4n');
 			});
