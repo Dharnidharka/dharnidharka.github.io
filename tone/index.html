@@ -134,6 +134,8 @@
 				}, midi.tracks[0].notes).start();
 				midiPart.loop = true;
 				midiPart.loopEnd = midi.duration;
+        Tone.Transport.bpm.value = 125;
+
 				Tone.Transport.start('4*4n');
 			});
 		}
