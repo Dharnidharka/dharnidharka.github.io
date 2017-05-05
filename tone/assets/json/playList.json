@@ -1,0 +1,26 @@
+{
+  "1":{
+    "1": "INTRO_INTENCITY_0.mid",
+    "2": "INTRO_INTENCITY_1.mid",
+    "3": "BREAK_INTENCITY_0.mid",
+    "4": "DROP_INTENCITY_0.mid"
+  },
+  "2":{
+    "1": "INTRO_INTENCITY_1.mid",
+    "2": "BREAK_INTENCITY_1.mid",
+    "3": "DROP_INTENCITY_1.mid",
+    "4": "DROP_INTENCITY_2.mid"
+  },
+  "3":{
+    "1": "INTRO_INTENCITY_0.mid",
+    "2": "BREAK_INTENCITY_1.mid",
+    "3": "DROP_INTENCITY_2.mid",
+    "4": "DROP_INTENCITY_3.mid"
+  },
+  "4":{
+    "1": "INTRO_INTENCITY_0.mid",
+    "2": "BREAK_INTENCITY_0.mid",
+    "3": "BREAK_INTENCITY_1.mid",
+    "4": "DROP_INTENCITY_3.mid"
+  }
+}

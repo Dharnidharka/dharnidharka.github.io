@@ -10,52 +10,88 @@
 
 	<script id="ToneCode" type="text/javascript">
 		var midiPart;
+    var volumeMap = {
+      '35': -6,
+      '36': -5,
+      '37': 5,
+      '38': 10,
+      '40': -3,
+      '41': 2,
+      '42': -10,
+      '43': 3,
+      '45':-1,
+      '46': -6
+    };
+
+    var comp_1 = new Tone.Compressor(-30, 3);
+    var comp_2 = new Tone.Compressor(-60, 6);
+    var comp_3 = new Tone.Compressor(-10, 6);
+    var effecrMap = {
+      '35': comp_1,
+      '36': [comp_1, comp_2],
+      '37': comp_3,
+      '38': comp_1,
+      '40': [comp_1, comp_3],
+      '41': comp_2,
+      '42': [comp_2, comp_3],
+      '43': comp_1,
+      '45': comp_2,
+      '46': comp_3
+    };
+
+    var Compressor = new Tone.Compressor({
+			"threshold" : -30,
+			"ratio" : 6,
+			"attack" : 0.3,
+			"release" : 0.1
+		}).toMaster();
+
     var player = {
 
       '35': new Tone.Player({
                 "url" : "./assets/audio/BD2.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(comp_3),
       '36': new Tone.Player({
                 "url" : "./assets/audio/BD1.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(comp_2),
       '37': new Tone.Player({
                 "url" : "./assets/audio/RS.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(comp_2),
       '38': new Tone.Player({
                 "url" : "./assets/audio/SD1.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(comp_1),
       '40': new Tone.Player({
                 "url" : "./assets/audio/SD2.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(comp_2),
       '41': new Tone.Player({
                 "url" : "./assets/audio/T1.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(comp_3),
       '42': new Tone.Player({
                 "url" : "./assets/audio/HH1.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(Compressor),
       '43': new Tone.Player({
                 "url" : "./assets/audio/T2.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(comp_2),
       '45': new Tone.Player({
                 "url" : "./assets/audio/T3.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(comp_1),
       '46': new Tone.Player({
                 "url" : "./assets/audio/OH.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(Compressor),
       '47': new Tone.Player({
                 "url" : "./assets/audio/P1.caf",
                 "loop" : false
-            }).toMaster(),
+            }).chain(Compressor),
       '48': new Tone.Player({
                 "url" : "./assets/audio/P2.caf",
                 "loop" : false
@@ -86,25 +122,8 @@
             }).toMaster()
   };
 
-		var Compressor = new Tone.Compressor({
-			"threshold" : -30,
-			"ratio" : 6,
-			"attack" : 0.3,
-			"release" : 0.1
-		}).toMaster();
 
-
-		// Данный метод объявления отдельных семплеров позволяет внедрять их в цепочку индивидуальных эффектов, например, давать на все басы эквализацию, а на барабаны — компрессор. При этом, сами инструменты можно также объединять в цепи, накладывая эффекты на группы инструментов, не затрагивая общий микс. Но мне кажется, он нагружает систему. https://tonejs.github.io/docs/#Sampler
-		// var perc 		= new Tone.Sampler({ "url" : "../assets/audio/techno/perc.wav"}).chain(Compressor);
-
-		var keys = new Tone.MultiPlayer({
-			urls : {
-				"BD2" : "assets/audio/BD2.caf"
-			},
-		}, function(){
-			playMidi('assets/midi/BREAK_INTENCITY_1.mid');
-		}).chain(Compressor);
-
+    playMidi('assets/midi/BREAK_INTENCITY_1.mid');
 
 		//Запуск функции чтения МИДИ и проигрывания инструментов в зависимости от ноты
 		function playMidi(file) {
@@ -112,28 +131,32 @@
 
 			MidiConvert.load(file, function(midi) {
 				console.log(midi.tracks[0].notes);
-        console.log(keys);
+        //console.log(keys);
 				// make sure you set the tempo before you schedule the events
 				Tone.Transport.bpm.value = midi.header.bpm;
-
+        Tone.Master.chain(comp_3);
 				midiPart = new Tone.Part(function(time, note) {
 
 					// Здесь происходят события яваскрипт, расставленные по времени
 
 					//console.log(note);
             var str = note.midi + '';
-            console.log(str);
+            if(str in volumeMap){
+              player[str].volume.value = volumeMap[str];
+            }
+            console.log(player[str].volume.value);
             player[str].start(duration = time);
 
           // Проигрывание семпла Sampler
-					//synth.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+					//keys.triggerAttackRelease(note.name, note.duration, time, note.velocity);
 
 					// Проигрывание ноты из мультиплеера
 					//keys.start(note.midi, note.time, 0, 16, 0, note.velocity);
 
-				}, midi.tracks[0].notes).start();
+				}, midi.tracks[0].notes).start(0);
 				midiPart.loop = true;
 				midiPart.loopEnd = midi.duration;
+        midiPart.stop("32m");
         Tone.Transport.bpm.value = 125;
 
 				Tone.Transport.start('4*4n');

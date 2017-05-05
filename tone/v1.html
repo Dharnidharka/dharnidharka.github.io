@@ -1,0 +1,94 @@
+<html><head></head><body cz-shortcut-listen="true">
+  <div style="padding: 20px;">Let the music begin</div>
+    </span>
+</div>
+	<!-- Tone JS -->
+
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="node_modules/tone/build/Tone.js"></script>
+	<script type="text/javascript" src="node_modules/tone/build/MidiConvert.js"></script>
+
+	<script id="ToneCode" type="text/javascript">
+		var midiPart, notes_arr;
+    var player = {}, volumeMap = {}, effectMap = {};
+    var url, base_dir;
+    var map, track;
+    var comp_1 = new Tone.Compressor(-30, 3);
+    var comp_2 = new Tone.Compressor(-60, 6);
+    var comp_3 = new Tone.Compressor(-10, 6);
+    var comp_4 = new Tone.Compressor({
+			"threshold" : -30,
+			"ratio" : 6,
+			"attack" : 0.3,
+			"release" : 0.1
+		});
+
+    base_dir = './assets/audio/';
+    map = 1, track = 0;
+    var midip = [
+      'assets/midi/DROP_INTENCITY_0.mid',
+      'assets/midi/DROP_INTENCITY_1.mid',
+      'assets/midi/DROP_INTENCITY_2.mid'
+    ];
+    init();
+
+    function init(){
+      getNotes();
+      getVolumeMap();
+      //playMidi('assets/midi/BREAK_INTENCITY_1.mid');
+      Tone.Transport.scheduleRepeat(function(time){
+      	//do something with the time
+        playMidi(midip[track]);
+        track++;
+        console.log(time);
+
+      }, "32:0:0");
+      Tone.Transport.start('4*4n');
+    }
+
+    function getNotes(){
+    $.getJSON('assets/json/notes.json', function(data){
+        for(var key in data){
+            url = base_dir + data[key];
+            player[key] = new Tone.Player({
+                      "url" : url,
+                      "loop" : false
+                  });
+            }
+          });
+      }
+
+      function getVolumeMap(){
+      $.getJSON('assets/json/volumeMap.json', function(data){
+        //console.log(data);
+          for(var key in data){
+                volumeMap[key] = data;
+            }
+          });
+        }
+
+
+		//Запуск функции чтения МИДИ и проигрывания инструментов в зависимости от ноты
+		function playMidi(file) {
+			MidiConvert.load(file, function(midi) {
+  			// make sure you set the tempo before you schedule the events
+				Tone.Transport.bpm.value = midi.header.bpm;
+        Tone.Master.chain(comp_3);
+				midiPart = new Tone.Part(function(time, note) {
+					// Здесь происходят события яваскрипт, расставленные по времени
+
+            var str = note.midi + '';
+            if(str in volumeMap[map][track]){
+              player[str].volume.value = volumeMap[map][track][str];
+            }
+            player[str].toMaster().start(duration = time);
+
+				}, midi.tracks[0].notes).start(0);
+				midiPart.loop = true;
+				midiPart.loopEnd = midi.duration;
+        Tone.Transport.bpm.value = 125;
+
+			});
+		}
+
+	</script></body></html>
