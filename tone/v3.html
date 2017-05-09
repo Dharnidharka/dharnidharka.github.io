@@ -48,75 +48,75 @@
 
     var player = {
 
-      '35': new Tone.Player({
+      '35': new Tone.Sampler({
                 "url" : "./assets/audio/BD2.caf",
                 "loop" : false
             }).chain(comp_3),
-      '36': new Tone.Player({
+      '36': new Tone.Sampler({
                 "url" : "./assets/audio/BD1.caf",
                 "loop" : false
             }).chain(comp_2),
-      '37': new Tone.Player({
+      '37': new Tone.Sampler({
                 "url" : "./assets/audio/RS.caf",
                 "loop" : false
             }).chain(comp_2),
-      '38': new Tone.Player({
+      '38': new Tone.Sampler({
                 "url" : "./assets/audio/SD1.caf",
                 "loop" : false
             }).chain(comp_1),
-      '40': new Tone.Player({
+      '40': new Tone.Sampler({
                 "url" : "./assets/audio/SD2.caf",
                 "loop" : false
             }).chain(comp_2),
-      '41': new Tone.Player({
+      '41': new Tone.Sampler({
                 "url" : "./assets/audio/T1.caf",
                 "loop" : false
             }).chain(comp_3),
-      '42': new Tone.Player({
+      '42': new Tone.Sampler({
                 "url" : "./assets/audio/HH1.caf",
                 "loop" : false
             }).chain(Compressor),
-      '43': new Tone.Player({
+      '43': new Tone.Sampler({
                 "url" : "./assets/audio/T2.caf",
                 "loop" : false
             }).chain(comp_2),
-      '45': new Tone.Player({
+      '45': new Tone.Sampler({
                 "url" : "./assets/audio/T3.caf",
                 "loop" : false
             }).chain(comp_1),
-      '46': new Tone.Player({
+      '46': new Tone.Sampler({
                 "url" : "./assets/audio/OH.caf",
                 "loop" : false
             }).chain(Compressor),
-      '47': new Tone.Player({
+      '47': new Tone.Sampler({
                 "url" : "./assets/audio/P1.caf",
                 "loop" : false
             }).chain(Compressor),
-      '48': new Tone.Player({
+      '48': new Tone.Sampler({
                 "url" : "./assets/audio/P2.caf",
                 "loop" : false
             }).toMaster(),
-      '50': new Tone.Player({
+      '50': new Tone.Sampler({
                 "url" : "./assets/audio/P3.caf",
                 "loop" : false
             }).toMaster(),
-      '51': new Tone.Player({
+      '51': new Tone.Sampler({
                 "url" : "./assets/audio/S1.caf",
                 "loop" : false
             }).toMaster(),
-      '60': new Tone.Player({
+      '60': new Tone.Sampler({
                 "url" : "./assets/audio/BASS.caf",
                 "loop" : false
             }).toMaster(),
-      '62': new Tone.Player({
+      '62': new Tone.Sampler({
                 "url" : "./assets/audio/MIDS.caf",
                 "loop" : false
             }).toMaster(),
-      '64': new Tone.Player({
+      '64': new Tone.Sampler({
                 "url" : "./assets/audio/LEADS.caf",
                 "loop" : false
             }).toMaster(),
-      '65': new Tone.Player({
+      '65': new Tone.Sampler({
                 "url" : "./assets/audio/FX.caf",
                 "loop" : false
             }).toMaster()
@@ -139,15 +139,10 @@
 
 					// Здесь происходят события яваскрипт, расставленные по времени
 
-					//console.log(note);
-            var str = note.midi + '';
-            if(str in volumeMap){
-              player[str].volume.value = volumeMap[str];
-            }
+					  console.log(time);
             console.log(note);
-            console.log(time);
-            //console.log(player[str].volume.value);
-            player[str].start(duration = time);
+            var str = note.midi + '';
+            player[str].triggerAttackRelease(0, note.duration, 0, note.velocity);
 
           // Проигрывание семпла Sampler
 					//keys.triggerAttackRelease(note.name, note.duration, time, note.velocity);
@@ -157,7 +152,7 @@
 
 				}, midi.tracks[0].notes).start(0);
 				midiPart.loop = true;
-				midiPart.loopEnd = midi.duration;
+				//midiPart.loopEnd = "32m";
         midiPart.stop("32m");
         Tone.Transport.bpm.value = 125;
 

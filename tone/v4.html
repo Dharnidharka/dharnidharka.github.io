@@ -1,0 +1,112 @@
+<html><head></head><body cz-shortcut-listen="true">
+  <div style="padding: 20px;">Let the music begin</div>
+    </span>
+</div>
+	<!-- Tone JS -->
+
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="node_modules/tone/build/Tone.js"></script>
+	<script type="text/javascript" src="node_modules/tone/build/MidiConvert.js"></script>
+
+	<script id="ToneCode" type="text/javascript">
+		var midiPart;
+    var volumeMap = {
+      '35': -6,
+      '36': -5,
+      '37': 5,
+      '38': 10,
+      '40': -3,
+      '41': 2,
+      '42': -10,
+      '43': 3,
+      '45':-1,
+      '46': -6
+    };
+
+    var comp_1 = new Tone.Compressor(-30, 3);
+    var comp_2 = new Tone.Compressor(-60, 6);
+    var comp_3 = new Tone.Compressor(-10, 6);
+    var effectMap = {
+      '35': comp_1,
+      '36': [comp_1, comp_2],
+      '37': comp_3,
+      '38': comp_1,
+      '40': [comp_1, comp_3],
+      '41': comp_2,
+      '42': [comp_2, comp_3],
+      '43': comp_1,
+      '45': comp_2,
+      '46': comp_3
+    };
+
+    var Compressor = new Tone.Compressor({
+			"threshold" : -30,
+			"ratio" : 6,
+			"attack" : 0.3,
+			"release" : 0.1
+		}).toMaster();
+
+    var keys = new Tone.MultiPlayer({
+        urls : {
+          "35" : "assets/audio/BD2.caf",
+          "36" : "assets/audio/BD1.caf",
+          "37" : "assets/audio/RS.caf",
+          "38" : "assets/audio/SD1.caf",
+          "40" : "assets/audio/SD2.caf",
+          "41" : "assets/audio/T1.caf",
+          "42" : "assets/audio/HH1.caf",
+          "43" : "assets/audio/T2.caf",
+          "45" : "assets/audio/T3.caf",
+          "46" : "assets/audio/OH.caf",
+          "47" : "assets/audio/P1.caf",
+          "48" : "assets/audio/P2.caf",
+          "50" : "assets/audio/P3.caf",
+          "51" : "assets/audio/S1.caf",
+          "60" : "assets/audio/BASS.caf",
+          "62" : "assets/audio/MIDS.caf",
+          "64" : "assets/audio/LEADS.caf",
+          "65" : "assets/audio/FX.caf",
+        },
+        fadeOut: 0.1,
+    }).toMaster();
+
+    playMidi('assets/midi/BREAK_INTENCITY_1.mid');
+
+		//Запуск функции чтения МИДИ и проигрывания инструментов в зависимости от ноты
+		function playMidi(file) {
+      //var synth = new Tone.PolySynth(8).toMaster()
+
+			MidiConvert.load(file, function(midi) {
+				console.log(midi.tracks[0].notes);
+        //console.log(keys);
+				// make sure you set the tempo before you schedule the events
+				Tone.Transport.bpm.value = midi.header.bpm;
+        Tone.Master.chain(comp_3);
+				midiPart = new Tone.Part(function(time, note) {
+
+					// Здесь происходят события яваскрипт, расставленные по времени
+
+					  console.log(time);
+            console.log(note);
+            //var str = note.midi + '';
+            //player[str].triggerAttackRelease(0, note.duration, 0, note.velocity);
+            keys.start(note.midi, time, 0, note.duration, 0, note.velocity);
+          // Проигрывание семпла Sampler
+					//keys.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+
+					// Проигрывание ноты из мультиплеера
+					//keys.start(note.midi, note.time, 0, 16, 0, note.velocity);
+
+				}, midi.tracks[0].notes).start(0);
+				midiPart.loop = true;
+				//midiPart.loopEnd = "32m";
+        midiPart.stop("32m");
+        Tone.Transport.bpm.value = 125;
+
+				Tone.Transport.start('4*4n');
+			});
+		}
+
+
+
+	</script></body></html>

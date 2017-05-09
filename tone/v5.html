@@ -1,0 +1,145 @@
+<html><head></head><body cz-shortcut-listen="true">
+  <div style="padding: 20px;">Let the music begin</div>
+    </span>
+</div>
+	<!-- Tone JS -->
+
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="node_modules/tone/build/Tone.js"></script>
+	<script type="text/javascript" src="node_modules/tone/build/MidiConvert.js"></script>
+
+	<script id="ToneCode" type="text/javascript">
+		var midiPart, notes_arr;
+    var player = {}, volumeMap = {}, effectsMap = {}, midiMap = [], tempMap = [], tempPlayer = {};
+    var url, base_dir;
+    var map, track;
+    var comp_1 = new Tone.Compressor(-30, 3);
+    var comp_2 = new Tone.Compressor(-60, 6);
+    var comp_3 = new Tone.Compressor(-10, 6);
+    var comp_4 = new Tone.Compressor({
+			"threshold" : -30,
+			"ratio" : 6,
+			"attack" : 0.3,
+			"release" : 0.1
+		});
+
+    base_dir = './assets/audio/';
+    base_midi_dir = './assets/midi/';
+    map = 2, track = 0;
+
+    init();
+
+    function init(){
+      getMidiMap();
+      getNotes();
+      getVolumeMap();
+      getEffectsMap();
+      Tone.Transport.scheduleRepeat(function(time){
+
+        if(midiPart){
+          midiPart.stop(time);
+        }
+
+        playMidi(midiMap[track]);
+
+        if(track == 2){
+          getNotes1();
+        }
+
+        if(track < 3){
+          track++;
+        }
+        else{
+          //map++;
+          //midiMap = tempMap.slice();
+          track = 0;
+          player = tempPlayer;
+          //Tone.Transport.stop();
+        }
+        console.log(time);
+
+      }, "32:0:0");
+      Tone.Transport.start('4*4n');
+    }
+
+    function getMidiMap(){
+      midiMap = [];
+      $.getJSON('assets/json/playList.json', function(data){
+          for(var i=1; i<=4; i++){
+            var temp = base_midi_dir + data[map][i];
+            midiMap.push(temp);
+          }
+      });
+    }
+    function getTempMap(){
+      tempMap = [];
+      $.getJSON('assets/json/playList.json', function(data){
+          for(var i=1; i<=4; i++){
+            var temp = base_midi_dir + data[map_fwd][i];
+            tempMap.push(temp);
+          }
+          console.log('tempMap');
+          console.log(tempMap);
+          //return midiMap;
+      });
+    }
+
+    function getNotes(){
+    $.getJSON('assets/json/notes.json', function(data){
+        var url_list = data;
+        //console.log(url_list);
+        player = new Tone.MultiPlayer({
+          urls: url_list
+        }).toMaster();
+      });
+    }
+
+    function getNotes1(){
+    $.getJSON('assets/json/notes1.json', function(data){
+        var url_list = data;
+        //console.log(url_list);
+        tempPlayer = new Tone.MultiPlayer({
+          urls: url_list
+        }).toMaster();
+      });
+    }
+
+      function getVolumeMap(){
+      $.getJSON('assets/json/volumeMap.json', function(data){
+        //console.log(data);
+          for(var key in data){
+                volumeMap[key] = data;
+            }
+          });
+        }
+
+      function getEffectsMap(){
+      $.getJSON('assets/json/effectsMap.json', function(data){
+          for(var key in data){
+                effectsMap[key] = data;
+            }
+          });
+        }
+
+
+		//Запуск функции чтения МИДИ и проигрывания инструментов в зависимости от ноты
+		function playMidi(file) {
+      console.log(file);
+			MidiConvert.load(file, function(midi) {
+  			// make sure you set the tempo before you schedule the events
+				Tone.Transport.bpm.value = midi.header.bpm;
+        if('Master' in effectsMap){
+          Tone.Master.chain(window[effectsMap[map][track]['Master']]);
+        }
+        midiPart = new Tone.Part(function(time, note) {
+            player.start(note.midi, time, 0, note.duration, 0, note.velocity);
+				}, midi.tracks[0].notes).start(0);
+				midiPart.loop = true;
+        console.log(midi.duration);
+				midiPart.loopEnd = midi.duration;
+        Tone.Transport.bpm.value = 125;
+
+			});
+		}
+
+	</script></body></html>
