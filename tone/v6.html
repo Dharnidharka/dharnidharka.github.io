@@ -26,6 +26,8 @@
       }
     }
   }
+  console.log("connection_test");
+  console.log(offline_flag);
 }
   </script>
 	<script id="ToneCode" type="text/javascript">
@@ -55,12 +57,12 @@
       getNotes();
       getVolumeMap();
       getEffectsMap();
+
       Tone.Transport.scheduleRepeat(function(time){
 
         if(midiPart){
           midiPart.stop(time);
         }
-        doesConnectionExist();
         if( offline_flag == 0){
           console.log(offline_flag);
           playMidi(midiMap[track]);
@@ -99,6 +101,7 @@
         playMidi(midiMap[0]);
 
       }
+      setInterval(doesConnectionExist, 5000);
         console.log(time);
 
       }, "32:0:0");
