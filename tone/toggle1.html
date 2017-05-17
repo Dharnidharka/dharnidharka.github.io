@@ -1,0 +1,97 @@
+<html><head></head><body cz-shortcut-listen="true">
+  <div style="padding: 20px;">Let the music begin</div>
+    </span>
+</div>
+	<!-- Tone JS -->
+
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="node_modules/tone/build/Tone.js"></script>
+	<script type="text/javascript" src="node_modules/tone/build/MidiConvert.js"></script>
+
+	<script id="ToneCode" type="text/javascript">
+		var midiPart;
+    var volumeMap = {
+      '60': -100,
+      '62': 0,
+      '64': 0,
+      '65': 0,
+      '67': 0,
+      '69': 0,
+      '71': 0,
+      '72': 0,
+      '74':-100
+    };
+
+    var player = {
+
+      '60': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.DRUMS.caf",
+                "loop" : false
+            }),
+      '62': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.PRECS.caf",
+                "loop" : false
+            }),
+      '64': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.HATS.caf",
+                "loop" : false
+            }),
+      '65': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.CLAPS.caf",
+                "loop" : false
+            }),
+      '67': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.BASS.caf",
+                "loop" : false
+            }),
+      '69': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.MIDS.caf",
+                "loop" : false
+            }),
+      '71': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.LEADS.caf",
+                "loop" : false
+            }),
+      '72': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.FX.caf",
+                "loop" : false
+            }),
+      '72': new Tone.Player({
+                "url" : "./assets/toggle/1_CAF/techno.01.VOCALS.caf",
+                "loop" : false
+            })
+  };
+
+
+    playMidi('assets/midi/TechnoMidi.mid');
+
+		//Запуск функции чтения МИДИ и проигрывания инструментов в зависимости от ноты
+		function playMidi(file) {
+			MidiConvert.load(file, function(midi) {
+				console.log(midi.tracks[0].notes);
+        console.log(volumeMap);
+				// make sure you set the tempo before you schedule the events
+				Tone.Transport.bpm.value = midi.header.bpm;
+        midiPart = new Tone.Part(function(time, note) {
+					//console.log(note);
+            var str = note.midi + '';
+            if(str in volumeMap){
+              console.log(str);
+              player[str].volume.value = volumeMap[str];
+            }
+            //console.log(note);
+            //console.log(time);
+            //player[str].start(0);
+
+				}, midi.tracks[0].notes).start();
+				midiPart.loop = true;
+				midiPart.loopEnd = midi.duration;
+        Tone.Transport.bpm.value = 120;
+
+				Tone.Transport.start('4*4n');
+			});
+		}
+
+
+
+	</script></body></html>
