@@ -87,7 +87,7 @@
 			max : 100,
 			drag : function(val){
         if(val < -50){
-          filter.frequency.value = -100;
+          filter.frequency.value = 1000;
           filter.type = "lowpass";
         }
         else if(val < 0){
@@ -99,7 +99,7 @@
           filter.type = "highpass";
         }
         else{
-          filter.frequency.value = 100;
+          filter.frequency.value = 20000;
           filter.type = "highpass";
         }
 			}
