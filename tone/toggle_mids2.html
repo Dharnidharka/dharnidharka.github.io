@@ -157,7 +157,8 @@
         if(str in volumeMap){
           player[str].volume.value = volumeMap[str];
         }
-        player[str].start();
+        console.log(note);
+        player[str].start(time, 0, note.duration);
       }, midi.tracks[0].notes).start(0);
       midiPart.loop = true;
       Tone.Transport.bpm.value = 120;
