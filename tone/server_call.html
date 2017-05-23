@@ -43,6 +43,7 @@
 <body>
 	<div id="Content">
     <div class="text-center"><h3>Music Configurator</h3></div>
+    <div id="bufferContent" style="margin-top: 20px;" class="text-center hidden">Buffering</div>
     <div id="toggleDiv" class="padding: 10px; margin-top: 30px;">
       <div class="col-sm-3">
         <div id="60" class="item">Drums</div>
@@ -62,9 +63,10 @@
 	</div>
   <script>
   var midiPart, notes_arr;
+  var player = {};
+  var midi, json;
   var url, base_dir;
   var map, track
-  midiFile = 'assets/toggle/TechnoMidi.mid';
 
   var volumeMap = {
     '60': 0,
@@ -105,62 +107,57 @@
 			}
 		});
 
-  var player = {
+    init();
 
-    '60': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.DRUMS.mp3",
-              "loop" : false
-          }).connect(filter).toMaster(),
-    '62': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.PERCS.mp3",
-              "loop" : false
-          }).connect(filter).toMaster(),
-    '64': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.HATS.mp3",
-              "loop" : false
-          }).connect(filter).toMaster(),
-    '65': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.CLAPS.mp3",
-              "loop" : false
-          }).connect(filter).toMaster(),
-    '67': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.BASS.mp3",
-              "loop" : false
-          }).connect(filter).toMaster(),
-    '69': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.MIDS.mp3",
-              "loop" : false
-          }).connect(filter).toMaster(),
-    '71': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.LEADS.mp3",
-              "loop" : false
-          }).connect(filter).toMaster(),
-    '72': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.FX.mp3",
-              "loop" : false
-          }).connect(filter).toMaster(),
-    '74': new Tone.Player({
-              "url" : "./assets/toggle/MP3/1_MP3/Techno.VOCALS.mp3",
-              "loop" : false
-          }).connect(filter).toMaster()
-};
+    function init(){
+      addBuffering();
+      getMidi();
+      getNotes();
+
+    }
+
+    function addBuffering(){
+      $('#bufferContent').removeClass('hidden');
+    }
+
+    function removeBuffering(){
+      $('#bufferContent').addClass('hidden');
+    }
+
+    function getMidi(){
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://pro.mubert.com/api", false);
+      var params = '{ "method": "Music", "params":[{"BPM":"120.00"},{"TONE":"C"},{"SCALE":"MINOR"},{"GENRE":"TECHNO"}], "gid": "generation_id", "lid": "language_id", "dt": "web", "app": "afp" }';
+      xhr.send(params);
+      json = JSON.parse(xhr.responseText);
+      midi = json.data.midi;
+    }
+
+    function getNotes(){
+      samples = json.data.samples;
+      for(var sample in samples){
+        player[sample] = new Tone.Player({
+                  "url" : samples[sample],
+                  "loop" : false
+              }).connect(filter).toMaster();
+      }
+        playMidi(midi);
+    }
 
   //playMidi('assets/toggle/TechnoMidi.mid');
-  playMidi('http://pro.mubert.com/data1/20/b0/44/20b0446161605db714fd046b8c510badc61977a2179');
+  //playMidi('http://pro.mubert.com/data1/20/b0/44/20b0446161605db714fd046b8c510badc61977a2179');
 
   function playMidi(file) {
+    removeBuffering();
     console.log(file);
     MidiConvert.load(file, function(midi) {
       // make sure you set the tempo before you schedule the events
       Tone.Transport.bpm.value = midi.header.bpm;
-      console.log(midi.tracks[1]);
       midiPart = new Tone.Part(function(time, note) {
-        console.log(filter.frequency.value);
         var str = note.midi + '';
         if(str in volumeMap){
           player[str].volume.value = volumeMap[str];
         }
-        console.log(note);
         player[str].start(time, 0, note.duration);
       }, midi.tracks[0].notes).start(0);
       midiPart.loop = true;
