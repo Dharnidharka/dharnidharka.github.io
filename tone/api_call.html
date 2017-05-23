@@ -126,7 +126,7 @@
 
     function getMidi(){
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", "http://pro.mubert.com/api", false);
+      xhr.open("POST", "https://pro.mubert.com/api", false);
       var params = '{ "method": "Music", "params":[{"BPM":"120.00"},{"TONE":"C"},{"SCALE":"MINOR"},{"GENRE":"TECHNO"}], "gid": "generation_id", "lid": "language_id", "dt": "web", "app": "afp" }';
       xhr.send(params);
       json = JSON.parse(xhr.responseText);
