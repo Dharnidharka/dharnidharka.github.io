@@ -125,7 +125,8 @@
     function getMidi(){
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "https://pro.mubert.com/api", false);
-      var params = '{ "method": "Music", "params":[{"BPM":"120.00"},{"TONE":"C"},{"SCALE":"MINOR"},{"GENRE":"TECHNO"}], "gid": "generation_id", "lid": "language_id", "dt": "web", "app": "afp" }';
+      //var params = '{ "method": "Music", "params":[{"BPM":"120.00"},{"TONE":"C"},{"SCALE":"MINOR"},{"GENRE":"TECHNO"}], "gid": "generation_id", "lid": "language_id", "dt": "web", "app": "afp" }';
+      var params = '{ "method": "Music", "params":[{"APP":"AFP"},{"BPM":"120.00"},{"TONE":"C"},{"SCALE":"MINOR"},{"GENRE":"DUBTECHNO"}], "dt": "web", "app": "afp" }';
       xhr.send(params);
       json = JSON.parse(xhr.responseText);
       midi = json.data.midi;
@@ -139,6 +140,7 @@
                   "loop" : false
               }).connect(filter).toMaster();
       }
+        console.log(samples);
         playMidi(midi);
     }
 
@@ -149,11 +151,15 @@
       // make sure you set the tempo before you schedule the events
       Tone.Transport.bpm.value = midi.header.bpm;
       midiPart = new Tone.Part(function(time, note) {
-        var str = note.midi + '';
+      var str = note.midi + '';
+
+      if(str in player){
+        player[str].start(time, 0, note.duration);
         if(str in volumeMap){
           player[str].volume.value = volumeMap[str];
         }
-        player[str].start(time, 0, note.duration);
+
+      }
       }, midi.tracks[0].notes).start(0);
       midiPart.loop = true;
       Tone.Transport.bpm.value = 120;
