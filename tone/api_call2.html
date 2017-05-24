@@ -185,7 +185,7 @@
                   "loop" : false
               }).connect(filter).toMaster();
       }
-        console.log(samples);
+        //console.log(samples);
     }
 
   function playMidi(file) {
@@ -231,7 +231,6 @@
 
         $('.genre').on('click', function(){
             var id = this.id;
-            console.log(Tone.Buffer);
             genre = id;
             for(str in player){
               volumeMap[str] = -100;
