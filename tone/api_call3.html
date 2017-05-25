@@ -124,33 +124,6 @@
     '72': 0,
   };
 
-  var filter = new Tone.Filter(0, "lowpass").toMaster();
-
-  Interface.Slider({
-			name : "LFO",
-			parent : $("#Sliders"),
-			min : -100,
-			max : 100,
-			drag : function(val){
-        if(val < -50){
-          filter.frequency.value = 1000;
-          filter.type = "lowpass";
-        }
-        else if(val < 0){
-          filter.frequency.value = 0;
-          filter.type = "lowpass";
-        }
-        else if(val < 50){
-          filter.frequency.value = 0;
-          filter.type = "highpass";
-        }
-        else{
-          filter.frequency.value = 20000;
-          filter.type = "highpass";
-        }
-			}
-		});
-
     init();
 
     function init(){
@@ -175,7 +148,7 @@
           track_change_flag = 0;
         }
         removeBuffering();
-      }, "16:0:0");
+      }, "8:0:0");
       Tone.Transport.start('8*4n');
     }
 
@@ -253,7 +226,7 @@
         }
       }
       console.clear();
-      
+
       }, midi.tracks[0].notes).start(0);
       midiPart.loop = true;
       Tone.Transport.bpm.value = 120;
