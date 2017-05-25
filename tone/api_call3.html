@@ -188,7 +188,7 @@
         player[sample] = new Tone.Player({
                   "url" : samples[sample],
                   "loop" : false
-              }).connect(filter).toMaster();
+              }).toMaster();
       }
         //console.log(samples);
     }
@@ -208,7 +208,7 @@
         tempPlayer[sample] = new Tone.Player({
                   "url" : samples[sample],
                   "loop" : false
-          }).connect(filter).toMaster();
+          }).toMaster();
       }
     }
 
