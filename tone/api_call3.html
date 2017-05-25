@@ -174,7 +174,6 @@
           playMidi(midi);
           track_change_flag = 0;
         }
-        console.clear();
         removeBuffering();
       }, "16:0:0");
       Tone.Transport.start('8*4n');
@@ -253,6 +252,8 @@
           player[str].volume.value = volumeMap[str];
         }
       }
+      console.clear();
+      
       }, midi.tracks[0].notes).start(0);
       midiPart.loop = true;
       Tone.Transport.bpm.value = 120;
