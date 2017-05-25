@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+	<title>PLAYER</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="icon" type="image/png" sizes="174x174" href="./style/favicon.png">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script src="node_modules/tone/build/Tone.js"></script>
+  <script type="text/javascript" src="node_modules/tone/build/MidiConvert.js"></script>
+	<script src="node_modules/tone/build/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="node_modules/tone/build/draggabilly.js"></script>
+	<script src="node_modules/tone/build/StartAudioContext.js"></script>
+	<script src="node_modules/tone/build/Interface.js"></script>
+	<script src="https://tonejs.github.io/Logo/build/Logo.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="node_modules/tone/css/examples.css">
+  <style>
+    .item{
+      background-color: #6facb3;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      width: 100px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .item:hover{
+      opacity: 0.7;
+    }
+    .genre{
+      background: red; /* For browsers that do not support gradients */
+      background: -webkit-linear-gradient(-90deg, #6facb3, #ff7a7a); /* For Safari 5.1 to 6.0 */
+      background: -o-linear-gradient(-90deg, #6facb3, #ff7a7a); /* For Opera 11.1 to 12.0 */
+      background: -moz-linear-gradient(-90deg, #6facb3, #ff7a7a); /* For Firefox 3.6 to 15 */
+      background: linear-gradient(-90deg, #6facb3, #ff7a7a); /* Standard syntax */
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      width: 100px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .genre:hover{
+      opacity: 0.7;
+    }
+    .muted{
+        background-color: #ff7a7a;
+    }
+    .quadrat {
+        width: 50px;
+        height: 50px;
+       -webkit-animation: blinking-animation 1s infinite; /* Safari 4+ */
+        -moz-animation:    blinking-animation 1s infinite; /* Fx 5+ */
+        -o-animation:      blinking-animation 1s infinite; /* Opera 12+ */
+        animation:         blinking-animation 1s infinite; /* IE 10+, Fx 29+ */
+      }
+
+      @-webkit-keyframes blinking-animation {
+      0%, 49% {
+          border: 3px solid #6facb3;
+      }
+      50%, 100% {
+          border: 3px solid #ff7a7a;
+      }
+  </style>
+	<script>
+		// jshint ignore: start
+	</script>
+
+</head>
+<body>
+	<div id="Content">
+    <div class="text-center"><h3>Music Configurator</h3></div>
+    <div id="bufferContent" style="margin-top: 20px;" class="text-center hidden">Buffering</div>
+    <div id="toggleDiv" class="padding: 10px; margin-top: 30px;">
+      <div class="col-sm-3">
+        <div id="60" class="item">Drums</div>
+        <div id="62" class="item">Percs</div>
+        <div id="64" class="item">Hats</div>
+        <div id="65" class="item">Claps</div>
+        <div id="67" class="item">Bass</div>
+        <div id="69" class="item">Mids</div>
+        <div id="71" class="item">Leads</div>
+        <div id="72" class="item">FX</div>
+      </div>
+      <div class="col-sm-6" style="margin-top: 50px;">
+          <div class="text-center">
+            <span id="TECHNO" class="genre">TECHNO</span>
+            <span id="DUBTECHNO" class="genre" style="margin-left: 20px;">DUBTECHNO</span>
+          </div>
+          <div id="Sliders" style="margin-top: 100px;"></div>
+      </div>
+    </div>
+	</div>
+  <script>
+  var midiPart, notes_arr;
+  var player = {}, genre = "TECHNO", track_change_flag = 0, tempPlayer = {}, tempMidi;
+  var midi, json;
+  var url, base_dir;
+  var map, track
+
+  var volumeMap = {
+    '60': 0,
+    '62': 0,
+    '64': 0,
+    '65': 0,
+    '67': 0,
+    '69': 0,
+    '71': 0,
+    '72': 0,
+  };
+
+  var baseVolumeMap = {
+    '60': 0,
+    '62': 0,
+    '64': 0,
+    '65': 0,
+    '67': 0,
+    '69': 0,
+    '71': 0,
+    '72': 0,
+  };
+
+  var filter = new Tone.Filter(0, "lowpass").toMaster();
+
+  Interface.Slider({
+			name : "LFO",
+			parent : $("#Sliders"),
+			min : -100,
+			max : 100,
+			drag : function(val){
+        if(val < -50){
+          filter.frequency.value = 1000;
+          filter.type = "lowpass";
+        }
+        else if(val < 0){
+          filter.frequency.value = 0;
+          filter.type = "lowpass";
+        }
+        else if(val < 50){
+          filter.frequency.value = 0;
+          filter.type = "highpass";
+        }
+        else{
+          filter.frequency.value = 20000;
+          filter.type = "highpass";
+        }
+			}
+		});
+
+    init();
+
+    function init(){
+      addBuffering();
+      getMidi();
+      getNotes();
+      setVolumeMap();
+      Tone.Transport.scheduleRepeat(function(time){
+        console.log(track_change_flag);
+        if(midiPart){
+          midiPart.stop(time);
+        }
+        if(track_change_flag == 0){
+          playMidi(midi);
+        }
+        else{
+          $('.item').removeClass("muted");
+          $('.genre').removeClass("quadrat");
+          midi = tempMidi;
+          player = tempPlayer;
+          playMidi(midi);
+          track_change_flag = 0;
+        }
+        console.clear();
+        removeBuffering();
+      }, "16:0:0");
+      Tone.Transport.start('8*4n');
+    }
+
+
+    function addBuffering(){
+      $('#bufferContent').removeClass('hidden');
+    }
+
+    function removeBuffering(){
+      $('#bufferContent').addClass('hidden');
+    }
+
+    function setVolumeMap(){
+      for(str in player){
+        if(str in volumeMap){
+          player[str].volume.value = baseVolumeMap[str];
+          player[str].mute = false;
+        }
+      }
+      for(str in baseVolumeMap){
+        volumeMap[str] = baseVolumeMap[str];
+      }
+    }
+
+    function getMidi(){
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "https://pro.mubert.com/api", false);
+      var params = '{ "method": "Music", "params":[{"APP":"AFP"},{"BPM":"120.00"},{"TONE":"C"},{"SCALE":"MINOR"},{"GENRE":"'+ genre + '"}], "dt": "web", "app": "afp" }';
+      xhr.send(params);
+      json = JSON.parse(xhr.response);
+      midi = json.data.midi;
+    }
+
+    function getNotes(){
+      samples = json.data.samples;
+      for(var sample in samples){
+        player[sample] = new Tone.Player({
+                  "url" : samples[sample],
+                  "loop" : false
+              }).connect(filter).toMaster();
+      }
+        //console.log(samples);
+    }
+
+    function getTempMidi(){
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "https://pro.mubert.com/api", false);
+      var params = '{ "method": "Music", "params":[{"APP":"AFP"},{"BPM":"120.00"},{"TONE":"C"},{"SCALE":"MINOR"},{"GENRE":"'+ genre + '"}], "dt": "web", "app": "afp" }';
+      xhr.send(params);
+      json = JSON.parse(xhr.response);
+      tempMidi = json.data.midi;
+    }
+
+    function getTempNotes(){
+      samples = json.data.samples;
+      for(var sample in samples){
+        tempPlayer[sample] = new Tone.Player({
+                  "url" : samples[sample],
+                  "loop" : false
+          }).connect(filter).toMaster();
+      }
+    }
+
+  function playMidi(file) {
+    console.log(file);
+    MidiConvert.load(file, function(midi) {
+      // make sure you set the tempo before you schedule the events
+      Tone.Transport.bpm.value = midi.header.bpm;
+      midiPart = new Tone.Part(function(time, note) {
+      var str = note.midi + '';
+      if(str in player){
+        player[str].start(time, 0, note.duration);
+        if(str in volumeMap){
+          player[str].volume.value = volumeMap[str];
+        }
+      }
+      }, midi.tracks[0].notes).start(0);
+      midiPart.loop = true;
+      Tone.Transport.bpm.value = 120;
+      //console.clear();
+    });
+  }
+  </script>
+  <script>
+    $(document).ready(function(){
+        $('.item').on('click', function(){
+            var id = this.id;
+            if($(this).hasClass("muted")){
+              $(this).removeClass("muted");
+              volumeMap[id] = 0;
+              if(id in player){
+                player[id].mute = false;
+              }
+            }
+            else{
+              $(this).addClass("muted");
+              volumeMap[id] = -100;
+              if(id in player){
+                player[id].mute = true;
+              }
+            }
+        });
+
+        $('.genre').on('click', function(){
+            var id = this.id;
+            genre = id;
+            $('.genre').removeClass("quadrat");
+            $(this).addClass("quadrat");
+            track_change_flag = 1;
+            getTempMidi();
+            getTempNotes();
+            //player = {};
+            //init();
+        });
+
+    });
+  </script>
+</body>
+</html>
