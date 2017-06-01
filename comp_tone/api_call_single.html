@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+	<title>PLAYER</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  	<link rel="icon" type="image/png" sizes="174x174" href="./style/favicon.png">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script src="js/jquery.min.js"></script>
+  <script src="js/mubert.min.js"></script>
+
+  <style>
+    .item{
+      background-color: #6facb3;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      width: 100px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .item:hover{
+      opacity: 0.7;
+    }
+    .genre{
+      background: red; /* For browsers that do not support gradients */
+      background: -webkit-linear-gradient(-90deg, #6facb3, #ff7a7a); /* For Safari 5.1 to 6.0 */
+      background: -o-linear-gradient(-90deg, #6facb3, #ff7a7a); /* For Opera 11.1 to 12.0 */
+      background: -moz-linear-gradient(-90deg, #6facb3, #ff7a7a); /* For Firefox 3.6 to 15 */
+      background: linear-gradient(-90deg, #6facb3, #ff7a7a); /* Standard syntax */
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      width: 100px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .genre:hover{
+      opacity: 0.7;
+    }
+    .muted{
+        background-color: #ff7a7a;
+    }
+    .quadrat {
+        width: 50px;
+        height: 50px;
+       -webkit-animation: blinking-animation 1s infinite; /* Safari 4+ */
+        -moz-animation:    blinking-animation 1s infinite; /* Fx 5+ */
+        -o-animation:      blinking-animation 1s infinite; /* Opera 12+ */
+        animation:         blinking-animation 1s infinite; /* IE 10+, Fx 29+ */
+      }
+
+      @-webkit-keyframes blinking-animation {
+      0%, 49% {
+          border: 3px solid #6facb3;
+      }
+      50%, 100% {
+          border: 3px solid #ff7a7a;
+      }
+  </style>
+	<script>
+		// jshint ignore: start
+	</script>
+
+</head>
+<body>
+	<div id="Content">
+    <div class="text-center"><h3>Music Configurator</h3></div>
+    <div id="bufferContent" style="margin-top: 20px;" class="text-center hidden">Buffering</div>
+    <div id="toggleDiv" class="padding: 10px; margin-top: 30px;">
+      <div class="col-sm-3">
+        <div id="60" class="item">Drums</div>
+        <div id="62" class="item">Percs</div>
+        <div id="64" class="item">Hats</div>
+        <div id="65" class="item">Claps</div>
+        <div id="67" class="item">Bass</div>
+        <div id="69" class="item">Mids</div>
+        <div id="71" class="item">Leads</div>
+        <div id="72" class="item">FX</div>
+      </div>
+      <div class="col-sm-6" style="margin-top: 50px;">
+          <div class="text-center">
+            <span id="TECHNO" class="genre">TECHNO</span>
+            <span id="DUBTECHNO" class="genre" style="margin-left: 20px;">DUBTECHNO</span>
+          </div>
+          <div id="Sliders" style="margin-top: 100px;"></div>
+      </div>
+    </div>
+	</div>
+
+</body>
+<script>
+  $(document).ready(function(){
+    getMubert({
+      genre: "TECHNO",
+      bpm: "120",
+      tone: "C",
+      scale: "minor",
+      app: "afp"
+    });
+  });
+</script>
+</html>
