@@ -147,38 +147,11 @@
 		<script src="js/loaders/MTLLoader.js"></script>
 		<script src="js/loaders/OBJLoader.js"></script>
     <script src="js/panolens.min.js"></script>
+
+
     <script src="js/controls/OrbitControls.js"></script>
 		<script src="js/Detector.js"></script>
 		<script src="js/libs/stats.min.js"></script>
-		<script src="js/libs/dat.gui.min.js"></script>
-		<script src="js/jquery-1.9.1.js"></script>
-		<script src="js/jquery-ui.js"></script>
-		<link rel=stylesheet href="css/jquery-ui.css" />
-		<script type="x-shader/x-vertex" id="vertexShader">
-
-				varying vec3 worldPosition;
-
-				void main() {
-						vec4 mPosition = modelMatrix * vec4( position, 1.0 );
-						gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-						worldPosition = mPosition.xyz;
-				}
-
-		</script>
-
-		<script type="x-shader/x-fragment" id="fragmentShader">
-
-				uniform vec3 topColor;
-				uniform vec3 bottomColor;
-				uniform float offset;
-				uniform float exponent;
-				varying vec3 worldPosition;
-
-				void main() {
-						float h = normalize( worldPosition + offset ).y;
-						gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( h, exponent ), 0.0 ) ), 1.0 );
-				}
-		</script>
 
 		<script>
 
@@ -190,62 +163,45 @@
 			var mouseX = 0, mouseY = 0;
       var raycaster = new THREE.Raycaster();
 			var raycaster0 = new THREE.Raycaster();
-			var sky, sunSphere;
 
       var mouse = new THREE.Vector2();
 
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
+			var panoramaContainer = document.getElementById( 'panorama-container' ),
+		  floorplanContainer = document.getElementById( 'floorplan-container' ),
+			mainContainer = document.getElementById( 'main-container' ),
+			panocloseButton = document.getElementById( 'pano-close' ),
+			floorcloseButton = document.getElementById( 'floor-close' );
+
+			var viewer = new PANOLENS.Viewer({ container: mainContainer  });
+
+;
+
 
 			init();
 			animate();
+
 
 			function init() {
 
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 10, 2000000 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
         camera.position.y = 0;
-        camera.position.z = 100;
+        camera.position.z = 20;
 
 				// scene
 
 				scene = new THREE.Scene();
 
+				var ambient = new THREE.AmbientLight( 0x444444 );
+				scene.add( ambient );
 
-        // add hemi lights
-
-        var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05 );
-        hemiLight.color.setHSL( 0.6, 1, 0.6 );
-        hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-        hemiLight.position.set( 0, 500, 0 );
-        scene.add( hemiLight );
-
-				// this is the Sun
-				dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-				dirLight.color.setHSL( 0.1, 1, 0.95 );
-				dirLight.position.set( -1, 2, 1 );
-				dirLight.position.multiplyScalar( 50 );
-				scene.add( dirLight );
-				// dirLight.shadowCameraVisible = true;
-
-				dirLight.castShadow = true;
-				dirLight.shadowMapWidth = dirLight.shadowMapHeight = 1024*2;
-
-				var d = 30;
-
-				dirLight.shadowCameraLeft = -d;
-				dirLight.shadowCameraRight = d;
-				dirLight.shadowCameraTop = d;
-				dirLight.shadowCameraBottom = -d;
-
-				// the magic is here - this needs to be tweaked if you change dimensions
-
-				dirLight.shadowCameraFar = 3500;
-				dirLight.shadowBias = -0.000001;
-				dirLight.shadowDarkness = 0.35;
-				scene.add( dirLight );
+				var directionalLight = new THREE.DirectionalLight( 0xffeedd );
+				directionalLight.position.set( 0, 0, 1 ).normalize();
+				scene.add( directionalLight );
 
 				// model
 
@@ -270,63 +226,211 @@
 					objLoader.setMaterials( materials );
 					objLoader.setPath( 'models/' );
 					objLoader.load( 'house1.obj', function ( object ) {
-						object.scale.set(3,3,3);
+
 						object.rotation.x=-Math.PI/2;
-            object.position.y=-20;
+            object.position.y=-10;
+            mesh = object;
             object.children[61].visible=false;
             object.children[62].visible=false;
             object.children[63].visible=false;
 						object.children[56].material.side = THREE.DoubleSide;
-						for(var i=0; i<63; i++){
-							object.children[i].receiveShadow = true;
-							object.children[i].castShadow = true;
-						}
+
 						scene.add( object );
-						document.getElementById('preloader').remove();
-						controls.center =  new THREE.Vector3(
-						    0,
-						    -20,
-						    0
-						);
 
 					}, onProgress, onError );
 
 				});
 
+				//
+
+
 				renderer = new THREE.WebGLRenderer({ antialias: true });
 				renderer.setPixelRatio( window.devicePixelRatio );
+				scene.fog = new THREE.Fog(0x222233, 0, 20000);
+				renderer.setClearColor( scene.fog.color, 1 );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
 
 				renderer.shadowMapEnabled = true;
 				renderer.shadowMapCullFace = THREE.CullFaceBack;
-
-				scene.fog = new THREE.Fog(0x222233, 0, 20000);
-				renderer.setClearColor( scene.fog.color, 1 );
 				container.appendChild( renderer.domElement );
-				window.addEventListener( 'resize', onWindowResize, false );
 
+        controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls.addEventListener( 'change', render ); // remove when using animation loop
+				// enable animation loop when using damping or autorotation
+				//controls.enableDamping = true;
+				//controls.dampingFactor = 0.25;
+        controls.minDistance = 0;
+        controls.maxDistance = 100;
+        controls.maxPolarAngle = Math.PI/2;
+
+				window.addEventListener( 'resize', onWindowResize, false );
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+				document.getElementById('preloader').remove();
+
+				panocloseButton.addEventListener( 'click', function () {
+					disposePanorama();
+					panoramaContainer.classList.remove( 'open' );
+					floorplanContainer.style.display='visible';
+
+				}, false );
+
+				floorcloseButton.addEventListener( 'click', function () {
+					floorplanContainer.classList.remove( 'open' );
+				}, false );
+
+			}
+
+			function disposePanorama () {
+
+				panorama.dispose();
+				viewer.remove( panorama );
+				panorama = null;
+				floor_flag = 1;
 			}
 
 			function onWindowResize() {
+
 				windowHalfX = window.innerWidth / 2;
 				windowHalfY = window.innerHeight / 2;
+
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
+
 				renderer.setSize( window.innerWidth, window.innerHeight );
+
 			}
 
+			function onDocumentMouseMove( event ) {
+
+					event.preventDefault();
+					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+				mouseover = 1;
+			}
+
+      function onDocumentMouseDown(event){
+        event.preventDefault();
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        mousedown = 1;
+      }
+			//
+
 			function animate() {
+
 				requestAnimationFrame( animate );
+        controls.update();
+
 				render();
+
 			}
 
 			function render() {
         TWEEN.update();
+				if(mouseover){
+					raycaster0.setFromCamera( mouse, camera );
+					var intersects0 = raycaster0.intersectObjects(scene.children, true);
+          if (intersects0.length) {
+						intersect=intersects0[0].object;
+						if(intersects0[0].object.name=="mark01" || intersects0[0].object.name=="mark02" || intersects0[0].object.name=="mark03"){
+									mark=intersects0[0].object;
+									intersects0[0].object.material.color.r=0.1289;
+									intersects0[0].object.material.color.g=0.7422;
+									intersects0[0].object.material.color.b=0.8672;
+
+						}
+						if(mark && intersect != mark){
+							mark.material.color.r=0.7686;
+							mark.material.color.g=0.3451;
+							mark.material.color.b=0.8824;
+						}
+				}
+				mouseover = 0;
+			}
+				if(mousedown){
+					intersect = 0;
+          raycaster.setFromCamera( mouse, camera );
+					var intersects = raycaster.intersectObjects(scene.children, true);
+          if (intersects.length) {
+            if(intersects[0].object.name == "roof"){
+                if(intersects[0].object.position.z == 0){
+                  new TWEEN.Tween( mesh.children[46].position ).to( {
+          						x: 0,
+          						y: 0,
+          						z: 8 }, 4000 )
+          					.easing( TWEEN.Easing.Cubic.Out).start();
+
+
+                }
+                else{
+                  new TWEEN.Tween( mesh.children[46].position ).to( {
+          						x: 0,
+          						y: 0,
+          						z: 0 }, 3000 )
+          					.easing( TWEEN.Easing.Cubic.Out).start();
+                }
+
+          }
+					if(intersects[0].object.name=="mark01"){
+							var path = 'models/mark1/';
+							var format = '.JPG';
+							panorama = new PANOLENS.CubePanorama( [
+									path + 'east' + format, path + 'west' + format,
+									path + 'up' + format, path + 'down' + format,
+									path + 'north' + format, path + 'south' + format
+							] );
+
+							viewer.add( panorama );
+							viewer.setPanorama( panorama );
+							floor_flag = 0;
+							panoramaContainer.classList.add( 'open' );
+
+					}
+					if(intersects[0].object.name=="mark02"){
+							var path = 'models/mark2/';
+							var format = '.JPG';
+							panorama = new PANOLENS.CubePanorama( [
+									path + 'east' + format, path + 'west' + format,
+									path + 'up' + format, path + 'down' + format,
+									path + 'north' + format, path + 'south' + format
+							] );
+
+							viewer.add( panorama );
+							viewer.setPanorama( panorama );
+							floor_flag = 0;
+							panoramaContainer.classList.add( 'open' );
+					}
+					if(intersects[0].object.name=="mark03"){
+							var path = 'models/mark3/';
+							var format = '.JPG';
+							panorama = new PANOLENS.CubePanorama( [
+									path + 'east' + format, path + 'west' + format,
+									path + 'up' + format, path + 'down' + format,
+									path + 'north' + format, path + 'south' + format
+							] );
+
+							viewer.add( panorama );
+							viewer.setPanorama( panorama );
+							floor_flag = 0;
+							panoramaContainer.classList.add( 'open' );
+					}
+					if(intersects[0].object.name=="floorplan001" && floor_flag == 1){
+								floorplanContainer.classList.add( 'open' );
+
+					}
+
+        }
+        mousedown = 0;
+        }
 				renderer.render( scene, camera );
+
 			}
 
 		</script>
+
 	</body>
 </html>

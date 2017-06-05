@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - OBJLoader + MTLLoader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" media="screen" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+		<link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000;
+				color: #000;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#panorama-container {
+				position: fixed;
+				display: flex;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				background: rgba(0,0,0,0.9);
+				transform: scale(0,0);
+				opacity: 0;
+				-webkit-transition: all 0.5s ease-out;
+				transition: all 0.5s ease-out;
+			}
+
+			#panorama-container.open {
+				opacity: 1;
+				transform: scale(1,1);
+			}
+
+			#floorplan-container {
+				position: fixed;
+				display: flex;
+				width: 60%;
+				height: 80%;
+				top: 0;
+				background: rgba(0,0,0,0.9);
+				transform: scale(0,0);
+				opacity: 0;
+				left:20%;
+				top:10%;
+				-webkit-transition: all 0.5s ease-out;
+				transition: all 0.5s ease-out;
+			}
+
+			#floorplan-container.open {
+				opacity: 0.8;
+				transform: scale(1,1);
+			}
+
+			.close {
+        width: 44px;
+        height: 44px;
+        position: absolute;
+        right: 0;
+        margin: 20px;
+        cursor: pointer;
+      }
+
+      .close > i {
+        color: #000;
+        font-size: 44px;
+      }
+
+			.close > i:hover {
+        color: #333;
+        font-size: 44px;
+      }
+
+      #main-container {
+        width: 100%;
+        height: 100%;
+        align-self: center;
+        background-color: rgba( 255, 255, 0, 0.5 );
+      }
+
+			#content-container{
+				padding: 15px;
+			}
+
+			#text-container{
+				margin-bottom: 10px;
+				color: #fff;
+			}
+			#image-container img{
+				width: 100%;
+				height: 100%;
+			}
+			#floor-close>i{
+				color: #fff;
+			}
+			#floor-close>i:hover{
+				color: #999;
+			}
+			#download{
+			 position:absolute;
+		   top:20px;
+		   right:20px;
+			 padding: 20px;
+			 text-decoration: none;
+			 background-color: #fff;
+			 color: #333;
+			 cursor: pointer;
+			}
+			#download:hover{
+				background-color: #eee;
+			}
+			div#preloader { position: fixed; left: 0; top: 0; z-index: 999; width: 100%; height: 100%; overflow: visible; background: #333 url('loading.gif') no-repeat center center; }
+		</style>
+	</head>
+
+	<body>
+
+			<a id="download" style="text-decoration: none; color: #333;" href="models/houseplan.pdf" download>Download</a>
+			<div id="preloader"></div>
+			<div style="position: absolute; width: 200px; left: 40%; top: 10%;">
+			<div class='input-group date' id='datetimepicker1' style="position: relative; width: auto; ">
+					<input type='text' class="form-control" id="datetime" />
+					<span class="input-group-addon">
+							<span class="glyphicon glyphicon-calendar"></span>
+					</span>
+			</div>
+		</div>
+		<div id="panorama-container">
+
+			<!-- Progress bar -->
+			<div id="progress-bar"></div>
+
+			<!-- Close button -->
+			<div id="pano-close" class="close">
+				<i class="material-icons">close</i>
+			</div>
+
+			<!-- Main container -->
+			<div id="main-container">
+
+			</div>
+		</div>
+		<div id="floorplan-container">
+			<div id="floor-close" class="close">
+				<i class="material-icons">close</i>
+			</div>
+			<div id="content-container">
+				<div id="text-container"><h3>NOTES ON THE PLAN</h3> Reposition the trees to lot border instead proposed central position which makes difficult to design any kind of driveway to the lot.</div>
+				<div id="image-container"><img src="models/floorplan.jpg"></img></div>
+			</div>
+		</div>
+		<script src="js/three.js"></script>
+		<script src="js/loaders/DDSLoader.js"></script>
+		<script src="js/loaders/MTLLoader.js"></script>
+		<script src="js/loaders/OBJLoader.js"></script>
+    <script src="js/panolens.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/SkyShader.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+		<script src="js/libs/dat.gui.min.js"></script>
+		<script src="js/jquery-1.9.1.js"></script>
+		<script src="js/jquery-ui.js"></script>
+
+		<script src="js/suncalc.js"></script>
+		<link rel=stylesheet href="css/jquery-ui.css" />
+		<link rel=stylesheet href="css/info.css"/>
+		<script src="js/info.js"></script>
+
+		<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+			<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+			<script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+
+		<div id="infoButton"></div>
+		<div id="infoBox" title="Demo Information">
+
+			Click on the roof to get started.
+		</div>
+		<script>
+
+			var container, stats, controls;
+			var effectController;
+			var directionalLight;
+			var camera, scene, renderer, mesh, panorama, mark, intersect;
+      var mousedown=0, mouseover=0;
+			var floor_flag = 1;
+			var mouseX = 0, mouseY = 0;
+      var raycaster = new THREE.Raycaster();
+			var raycaster0 = new THREE.Raycaster();
+			var sky, sunSphere;
+
+      var mouse = new THREE.Vector2();
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+			var panoramaContainer = document.getElementById( 'panorama-container' ),
+		  floorplanContainer = document.getElementById( 'floorplan-container' ),
+			mainContainer = document.getElementById( 'main-container' ),
+			panocloseButton = document.getElementById( 'pano-close' ),
+			floorcloseButton = document.getElementById( 'floor-close' );
+
+			var viewer = new PANOLENS.Viewer({ container: mainContainer  });
+
+;
+
+
+			init();
+			animate();
+
+			function initSky() {
+				// Add Sky Mesh
+				sky = new THREE.Sky();
+				scene.add( sky.mesh );
+				// Add Sun Helper
+				sunSphere = new THREE.Mesh(
+					new THREE.SphereBufferGeometry( 20000, 16, 8 ),
+					new THREE.MeshBasicMaterial( { color: 0xffffff } )
+				);
+				sunSphere.position.y = - 700000;
+				sunSphere.visible = false;
+				scene.add( sunSphere );
+
+				// get today's sunlight times for London
+
+				console.log(datetime);
+				var times = SunCalc.getTimes(new Date(), 51.5, 100.1);	//date, lat, long
+				console.log(new Date());
+				// get position of the sun (azimuth and altitude) at today's sunrise
+				var sunrisePos = SunCalc.getPosition(times.sunrise, 54.15, -34.48);
+				console.log(sunrisePos);
+				var sunriseAzimuth = sunrisePos.azimuth;
+				var sunriseInclination = sunrisePos.altitude;
+
+				console.log(sunriseAzimuth);
+				console.log(sunriseInclination);
+
+				/// GUI
+				effectController  = {
+					turbidity: 10,
+					rayleigh: 2,
+					mieCoefficient: 0.005,
+					mieDirectionalG: 0.8,
+					luminance: 1,
+					inclination: sunriseInclination, 			//0.49, // elevation / inclination
+					azimuth: sunriseAzimuth   //0.25 // Facing front,
+				};
+				directionalLight = new THREE.DirectionalLight( 0xffeedd );
+				directionalLight.castShadow = true;
+				scene.add( directionalLight );
+				guiChanged();
+			}
+
+			function guiChanged() {
+				var distance = 40000;
+				var uniforms = sky.uniforms;
+				uniforms.turbidity.value = effectController.turbidity;
+				uniforms.rayleigh.value = effectController.rayleigh;
+				uniforms.luminance.value = effectController.luminance;
+				uniforms.mieCoefficient.value = effectController.mieCoefficient;
+				uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+				var theta = Math.PI * ( effectController.inclination - 0.5 );
+				var phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
+				sunSphere.position.x = distance * Math.cos( phi );
+				sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
+				sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
+				sunSphere.visible = effectController.sun;
+				sky.uniforms.sunPosition.value.copy( sunSphere.position );
+				directionalLight.position.copy( sunSphere.position );
+				renderer.render( scene, camera );
+				console.log(effectController.inclination);
+				console.log(effectController.azimuth);
+
+			}
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 10, 2000000 );
+        camera.position.y = 0;
+        camera.position.z = 20;
+
+				// scene
+
+				scene = new THREE.Scene();
+
+				var ambient = new THREE.AmbientLight( 0x444444 );
+				scene.add( ambient );
+
+
+				// model
+
+				var onProgress = function ( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+					}
+				};
+
+				var onError = function ( xhr ) { };
+
+				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+
+				var mtlLoader = new THREE.MTLLoader();
+				mtlLoader.setPath( 'models/' );
+				mtlLoader.load( 'house1.mtl', function( materials ) {
+
+					materials.preload();
+
+					var objLoader = new THREE.OBJLoader();
+					objLoader.setMaterials( materials );
+					objLoader.setPath( 'models/' );
+					objLoader.load( 'house1.obj', function ( object ) {
+						object.scale.set(3,3,3);
+						object.rotation.x=-Math.PI/2;
+            object.position.y=-20;
+            mesh = object;
+            object.children[61].visible=false;
+            object.children[62].visible=false;
+            object.children[63].visible=false;
+						object.children[56].material.side = THREE.DoubleSide;
+						object.receiveShadow = true;
+						object.castShadow = true;
+						scene.add( object );
+						document.getElementById('preloader').remove();
+						controls.center =  new THREE.Vector3(
+						    0,
+						    -20,
+						    0
+						);
+
+					}, onProgress, onError );
+
+				});
+
+				//
+
+
+				renderer = new THREE.WebGLRenderer({ antialias: true });
+				renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setClearColor(0x999999);
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+        controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls.addEventListener( 'change', render ); // remove when using animation loop
+				// enable animation loop when using damping or autorotation
+				//controls.enableDamping = true;
+				//controls.dampingFactor = 0.25;
+        controls.minDistance = 0;
+        controls.maxDistance = 80;
+        controls.maxPolarAngle = Math.PI/2;
+
+				controls.addEventListener( 'change', render );
+
+
+				initSky();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+				panocloseButton.addEventListener( 'click', function () {
+					disposePanorama();
+					panoramaContainer.classList.remove( 'open' );
+					floorplanContainer.style.display='visible';
+
+				}, false );
+
+				floorcloseButton.addEventListener( 'click', function () {
+					floorplanContainer.classList.remove( 'open' );
+				}, false );
+
+			}
+
+			function disposePanorama () {
+
+				panorama.dispose();
+				viewer.remove( panorama );
+				panorama = null;
+				floor_flag = 1;
+			}
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+					event.preventDefault();
+					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+				mouseover = 1;
+			}
+
+      function onDocumentMouseDown(event){
+        event.preventDefault();
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        mousedown = 1;
+      }
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+        controls.update();
+
+				render();
+
+			}
+
+			function render() {
+        TWEEN.update();
+				if(mouseover){
+					raycaster0.setFromCamera( mouse, camera );
+					var intersects0 = raycaster0.intersectObjects(scene.children, true);
+          if (intersects0.length) {
+						intersect=intersects0[0].object;
+						if(intersects0[0].object.name=="mark01" || intersects0[0].object.name=="mark02" || intersects0[0].object.name=="mark03" || intersects0[0].object.name=="roof"){
+									mark=intersects0[0].object;
+									if(intersects0[0].object.name != "roof"){
+										intersects0[0].object.material.color.r=0.1289;
+										intersects0[0].object.material.color.g=0.7422;
+										intersects0[0].object.material.color.b=0.8672;
+									}
+									else{
+										intersects0[0].object.material.color.r=0.988;
+										intersects0[0].object.material.color.g=0.988;
+										intersects0[0].object.material.color.b=0.988;
+									}
+									container.style.cursor="pointer";
+						}
+						if(mark && intersect != mark){
+							if(mark.name != "roof"){
+								mark.material.color.r=0.7686;
+								mark.material.color.g=0.3451;
+								mark.material.color.b=0.8824;
+							}
+							else{
+								mark.material.color.r=0.588;
+								mark.material.color.g=0.588;
+								mark.material.color.b=0.588;
+							}
+							container.style.cursor="auto";
+						}
+
+
+				}
+				mouseover = 0;
+			}
+				if(mousedown){
+					intersect = 0;
+          raycaster.setFromCamera( mouse, camera );
+					var intersects = raycaster.intersectObjects(scene.children, true);
+          if (intersects.length) {
+            if(intersects[0].object.name == "roof"){
+                if(intersects[0].object.position.z == 0){
+                  new TWEEN.Tween( mesh.children[46].position ).to( {
+          						x: 0,
+          						y: 0,
+          						z: 8 }, 4000 )
+          					.easing( TWEEN.Easing.Cubic.Out).start();
+
+
+                }
+                else{
+                  new TWEEN.Tween( mesh.children[46].position ).to( {
+          						x: 0,
+          						y: 0,
+          						z: 0 }, 3000 )
+          					.easing( TWEEN.Easing.Cubic.Out).start();
+                }
+
+          }
+					if(intersects[0].object.name=="mark01"){
+							var path = 'models/mark1/';
+							var format = '.JPG';
+							panorama = new PANOLENS.CubePanorama( [
+									path + 'east' + format, path + 'west' + format,
+									path + 'up' + format, path + 'down' + format,
+									path + 'north' + format, path + 'south' + format
+							] );
+
+							viewer.add( panorama );
+							viewer.setPanorama( panorama );
+							floor_flag = 0;
+							panoramaContainer.classList.add( 'open' );
+
+					}
+					if(intersects[0].object.name=="mark02"){
+							var path = 'models/mark2/';
+							var format = '.JPG';
+							panorama = new PANOLENS.CubePanorama( [
+									path + 'east' + format, path + 'west' + format,
+									path + 'up' + format, path + 'down' + format,
+									path + 'north' + format, path + 'south' + format
+							] );
+
+							viewer.add( panorama );
+							viewer.setPanorama( panorama );
+							floor_flag = 0;
+							panoramaContainer.classList.add( 'open' );
+					}
+					if(intersects[0].object.name=="mark03"){
+							var path = 'models/mark3/';
+							var format = '.JPG';
+							panorama = new PANOLENS.CubePanorama( [
+									path + 'east' + format, path + 'west' + format,
+									path + 'up' + format, path + 'down' + format,
+									path + 'north' + format, path + 'south' + format
+							] );
+
+							viewer.add( panorama );
+							viewer.setPanorama( panorama );
+							floor_flag = 0;
+							panoramaContainer.classList.add( 'open' );
+					}
+					if(intersects[0].object.name=="floorplan001" && floor_flag == 1){
+								floorplanContainer.classList.add( 'open' );
+
+					}
+
+        }
+        mousedown = 0;
+        }
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+		<script type="text/javascript">
+		$(function () {
+				var bindDatePicker = function() {
+					$("#datetimepicker1").datetimepicker().find('input:first').on("blur",function () {
+					 var date = $(this).val();
+					 $(this).val(date);
+					 console.log(new Date(date));
+					 var dt = new Date(date);
+					 var sunrisePos = SunCalc.getPosition(dt, 0, 0);
+					 console.log(sunrisePos);
+					 var sunriseAzimuth = sunrisePos.azimuth;
+ 					 var sunriseInclination = sunrisePos.altitude;
+					 effectController.inclination = sunriseInclination;
+					 effectController.azimuth = sunriseAzimuth;
+					 guiChanged();
+					});
+				}
+				bindDatePicker();
+				});
+    </script>
+	</body>
+</html>
