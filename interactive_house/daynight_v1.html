@@ -7,6 +7,7 @@
 		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" media="screen" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
 		<link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+		<link href="css/simple-slider.css" rel="stylesheet" type="text/css" />
 
 		<style>
 			body {
@@ -126,6 +127,13 @@
 							<span class="glyphicon glyphicon-calendar"></span>
 					</span>
 			</div>
+			<div class='input-group' id='latitude-div' style="position: relative;  margin-top:40px; color: white;">
+					Latitude <input type='text' id="latitude" data-slider="true" data-slider-range="-90,90" style="width: 100px;" />
+			</div>
+			<div class='input-group' id='longitude-div' style="position: relative; width: 100px; margin-top:40px; color: white;">
+					Longitude <input type='text' id="longitude" data-slider="true" data-slider-range="-180,180" style="width: 100px;" />
+			</div>
+
 		</div>
 		<div id="panorama-container">
 
@@ -172,6 +180,7 @@
 		<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 			<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
 			<script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+			<script src="js/simple-slider.min.js"></script>
 
 		<div id="infoButton"></div>
 		<div id="infoBox" title="Demo Information">
@@ -541,13 +550,16 @@
 
 		</script>
 		<script type="text/javascript">
+		var dt = new Date();
+		var latitude = 0;
+		var longitude = 0;
 		$(function () {
 				var bindDatePicker = function() {
 					$("#datetimepicker1").datetimepicker().find('input:first').on("blur",function () {
 					 var date = $(this).val();
 					 $(this).val(date);
 					 console.log(new Date(date));
-					 var dt = new Date(date);
+					 dt = new Date(date);
 					 var sunrisePos = SunCalc.getPosition(dt, 0, 0);
 					 console.log(sunrisePos);
 					 var sunriseAzimuth = sunrisePos.azimuth;
@@ -558,6 +570,28 @@
 					});
 				}
 				bindDatePicker();
+				$("#latitude").bind("slider:changed", function (event, data) {
+				  // The currently selected value of the slider
+					latitude = data.value;
+					var sunrisePos = SunCalc.getPosition(dt, latitude, longitude);
+					console.log(sunrisePos);
+					var sunriseAzimuth = sunrisePos.azimuth;
+					var sunriseInclination = sunrisePos.altitude;
+					effectController.inclination = sunriseInclination;
+					effectController.azimuth = sunriseAzimuth;
+					guiChanged();
+				});
+				$("#longitude").bind("slider:changed", function (event, data) {
+				  // The currently selected value of the slider
+					longitude = data.value;
+					var sunrisePos = SunCalc.getPosition(dt, latitude, longitude);
+					console.log(sunrisePos);
+					var sunriseAzimuth = sunrisePos.azimuth;
+					var sunriseInclination = sunrisePos.altitude;
+					effectController.inclination = sunriseInclination;
+					effectController.azimuth = sunriseAzimuth;
+					guiChanged();
+				});
 				});
     </script>
 	</body>
