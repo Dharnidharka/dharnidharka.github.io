@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,7 +6,7 @@
 	<title>PLAYER</title>
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<link rel="icon" type="image/png" sizes="174x174" href="./style/favicon.png">
+
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<script src="node_modules/tone/build/T.js"></script>
   <script type="text/javascript" src="node_modules/tone/build/M.js"></script>
@@ -43,7 +44,7 @@
       padding: 10px;
       margin-bottom: 10px;
     }
-    
+
     .genre,.genre2:hover{
       opacity: 0.7;
     }
@@ -67,12 +68,12 @@
           border: 3px solid #ff7a7a;
       }
     }
-    
+
     .genre2{
 	    min-width:150px;
 	    display:inline-block;
     }
-    
+
   </style>
 	<script>
 		// jshint ignore: start
@@ -100,9 +101,9 @@
             <span id="TECHNO" class="genre">TECHNO</span>
             <span id="DUBTECHNO" class="genre" style="margin-left: 20px;">DUBTECHNO</span>
           </div>-->
-          
+
 		  <div class="text-center" style="padding-top:30px;">
-          	
+
           	<div data-mood="HAPPINESS" data-intensity="1" class="genre2" style="margin-left: 20px;">Mood: Happiness intensity:1</div>
           	<div data-mood="HAPPINESS" data-intensity="2" class="genre2" style="margin-left: 20px;">Mood: Happiness intensity:2</div>
           	<div data-mood="HAPPINESS" data-intensity="3" class="genre2" style="margin-left: 20px;">Mood: Happiness intensity:3</div>
@@ -124,7 +125,7 @@
           	<div data-mood="SAD" data-intensity="3" class="genre2" style="margin-left: 20px;">Mood: Sad intensity:3</div>
           	<div data-mood="SAD" data-intensity="4" class="genre2" style="margin-left: 20px;">Mood: Sad intensity:4</div>
 		  </div>
-          
+
           <div id="Sliders" style="margin-top: 100px;"></div>
       </div>
     </div>
@@ -134,10 +135,22 @@
 <script>
 	var MUB = new MUBERT();
 
+  /*
+  MUB.addFilter({
+     tracks: ['BASS', 'HATS', 'PERCS'],
+     frequency: 200,
+     type: 'highpass'
+   }
+  );
+  /*
+  MUB.addStereoPan({
+    tracks: ['ALL'],
+    value: 100
+  });
+  */
+
 	$(document).ready(function(){
-	    
-	    
-	    
+
 	    $('.item').on('click', function(){
 	          var id = this.id;
 	          if($(this).hasClass("muted")){
@@ -158,9 +171,9 @@
 	    });
 	    $('.genre').on('click', function(){
 	          var id = this.id;
-	          
+
 	          if(typeof(id) != 'undefined'){
-	          
+
 		          genre = id;
 		          $('.genre').removeClass("quadrat");
 		          $(this).addClass("quadrat");
@@ -168,37 +181,37 @@
 
 	          }
 	    });
-	    
+
 	    $('.genre2').on('click', function(){
 	        var mood = $(this).data('mood');
 	        var intensity = $(this).data('intensity');
-	        
+
 	        console.dir({
 			  mood      : mood, // string
 			  intensity : '_'+intensity  // integer
 			});
-	        
+
 	        MUB.getMubert({
 			  mood      : mood, // string
 			  intensity : '_'+intensity  // integer
 			});
 	    });
-	
-	});
-	
 
-	
+	});
+
+
+
 	function getWaveform(sound,fft,waveform){
-		
+
 		/*console.log('TRACK: '+sound);
 		console.log('FFT: ');
 		console.dir(fft);
 		console.log('WAVE: ');
 		console.dir(waveform);*/
-		
+
 	}
-	
-	
+
+
 </script>
 
 </html>
