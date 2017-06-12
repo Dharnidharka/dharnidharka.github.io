@@ -278,6 +278,9 @@
 				sky.uniforms.sunPosition.value.copy( sunSphere.position );
 				directionalLight.position.copy( sunSphere.position );
 				renderer.render( scene, camera );
+				console.log('data');
+				console.log(dt, latitude, longitude);
+
 				console.log(effectController.inclination);
 				console.log(effectController.azimuth);
 
