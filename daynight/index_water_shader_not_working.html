@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Shadows</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+        <link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+        <link href="css/simple-slider.css" rel="stylesheet" type="text/css" />
+        <script type="x-shader/x-vertex" id="vertexShader">
+
+            varying vec3 worldPosition;
+
+            void main() {
+                vec4 mPosition = modelMatrix * vec4( position, 1.0 );
+                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                worldPosition = mPosition.xyz;
+            }
+
+        </script>
+        <script src="js/jquery-1.9.1.js"></script>
+    		<script src="js/jquery-ui.js"></script>
+        <script src="js/three.js"></script>
+        <script src="js/loaders/DDSLoader.js"></script>
+        <script src="js/loaders/MTLLoader.js"></script>
+        <script src="js/loaders/OBJLoader.js"></script>
+        <script src="js/OrbitControls.js"></script>
+        <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+          <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+          <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+          <script src="js/simple-slider.min.js"></script>
+        <body>
+        <div style="position: absolute; width: 200px; left: 40%; top: 10%;">
+          <div class='input-group' id='azimuth-div' style="position: relative;  margin-top:40px; color: white;">
+    					azimuth <input type='text' id="azimuth" data-slider="true" data-slider-range="-3.14,3.14" style="width: 100px;" />
+    			</div>
+    			<div class='input-group' id='inclination-div' style="position: relative; width: 100px; margin-top:40px; color: white;">
+    					inclination <input type='text' id="inclination" data-slider="true" data-slider-range="-1, 4" style="width: 100px;" />
+    			</div>
+        </div>
+
+
+        <script type="x-shader/x-fragment" id="fragmentShader">
+
+            uniform vec3 topColor;
+            uniform vec3 bottomColor;
+            uniform float offset;
+            uniform float exponent;
+
+            varying vec3 worldPosition;
+
+            void main() {
+
+                float h = normalize( worldPosition + offset ).y;
+                gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( h, exponent ), 0.0 ) ), 1.0 );
+
+            }
+
+        </script>
+
+        <script id="water-vertex-shader" type="no-js">
+      		void main()	{
+      			gl_Position = vec4( position, 1.0 );
+        		}
+        </script>
+        <!-- orinal from https://www.shadertoy.com/view/Ms2SD1 -->
+        <script id="water-fragment-shader" type="no-js">
+        	uniform float iGlobalTime;
+        	uniform vec2 iResolution;
+        	uniform vec4 iMouse;
+
+        const int NUM_STEPS = 8;
+        const float PI	 	= 3.1415;
+        const float EPSILON	= 1e-3;
+        float EPSILON_NRM	= 0.1 / iResolution.x;
+
+        // sea
+        const int ITER_GEOMETRY = 3;
+        const int ITER_FRAGMENT = 5;
+        const float SEA_HEIGHT = 0.6;
+        const float SEA_CHOPPY = 4.0;
+        const float SEA_SPEED = 0.8;
+        const float SEA_FREQ = 0.16;
+        const vec3 SEA_BASE = vec3(0.1,0.19,0.22);
+        const vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
+        float SEA_TIME = iGlobalTime * SEA_SPEED;
+        mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+
+        // math
+        mat3 fromEuler(vec3 ang) {
+        	vec2 a1 = vec2(sin(ang.x),cos(ang.x));
+            vec2 a2 = vec2(sin(ang.y),cos(ang.y));
+            vec2 a3 = vec2(sin(ang.z),cos(ang.z));
+            mat3 m;
+            m[0] = vec3(a1.y*a3.y+a1.x*a2.x*a3.x,a1.y*a2.x*a3.x+a3.y*a1.x,-a2.y*a3.x);
+        	m[1] = vec3(-a2.y*a1.x,a1.y*a2.y,a2.x);
+        	m[2] = vec3(a3.y*a1.x*a2.x+a1.y*a3.x,a1.x*a3.x-a1.y*a3.y*a2.x,a2.y*a3.y);
+        	return m;
+        }
+        float hash( vec2 p ) {
+        	float h = dot(p,vec2(127.1,311.7));
+            return fract(sin(h)*43758.5453123);
+        }
+        float noise( in vec2 p ) {
+            vec2 i = floor( p );
+            vec2 f = fract( p );
+        	vec2 u = f*f*(3.0-2.0*f);
+            return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ),
+                             hash( i + vec2(1.0,0.0) ), u.x),
+                        mix( hash( i + vec2(0.0,1.0) ),
+                             hash( i + vec2(1.0,1.0) ), u.x), u.y);
+        }
+
+        // lighting
+        float diffuse(vec3 n,vec3 l,float p) {
+            return pow(dot(n,l) * 0.4 + 0.6,p);
+        }
+        float specular(vec3 n,vec3 l,vec3 e,float s) {
+            float nrm = (s + 8.0) / (3.1415 * 8.0);
+            return pow(max(dot(reflect(e,n),l),0.0),s) * nrm;
+        }
+
+        // sky
+        vec3 getSkyColor(vec3 e) {
+            e.y = max(e.y,0.0);
+            vec3 ret;
+            ret.x = pow(1.0-e.y,2.0);
+            ret.y = 1.0-e.y;
+            ret.z = 0.6+(1.0-e.y)*0.4;
+            return ret;
+        }
+
+        // sea
+        float sea_octave(vec2 uv, float choppy) {
+            uv += noise(uv);
+            vec2 wv = 1.0-abs(sin(uv));
+            vec2 swv = abs(cos(uv));
+            wv = mix(wv,swv,wv);
+            return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
+        }
+
+        float map(vec3 p) {
+            float freq = SEA_FREQ;
+            float amp = SEA_HEIGHT;
+            float choppy = SEA_CHOPPY;
+            vec2 uv = p.xz; uv.x *= 0.75;
+
+            float d, h = 0.0;
+            for(int i = 0; i < ITER_GEOMETRY; i++) {
+            	d = sea_octave((uv+SEA_TIME)*freq,choppy);
+            	d += sea_octave((uv-SEA_TIME)*freq,choppy);
+                h += d * amp;
+            	uv *= octave_m; freq *= 1.9; amp *= 0.22;
+                choppy = mix(choppy,1.0,0.2);
+            }
+            return p.y - h;
+        }
+
+        float map_detailed(vec3 p) {
+            float freq = SEA_FREQ;
+            float amp = SEA_HEIGHT;
+            float choppy = SEA_CHOPPY;
+            vec2 uv = p.xz; uv.x *= 0.75;
+
+            float d, h = 0.0;
+            for(int i = 0; i < ITER_FRAGMENT; i++) {
+            	d = sea_octave((uv+SEA_TIME)*freq,choppy);
+            	d += sea_octave((uv-SEA_TIME)*freq,choppy);
+                h += d * amp;
+            	uv *= octave_m; freq *= 1.9; amp *= 0.22;
+                choppy = mix(choppy,1.0,0.2);
+            }
+            return p.y - h;
+        }
+
+        vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {
+            float fresnel = 1.0 - max(dot(n,-eye),0.0);
+            fresnel = pow(fresnel,3.0) * 0.65;
+
+            vec3 reflected = getSkyColor(reflect(eye,n));
+            vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12;
+
+            vec3 color = mix(refracted,reflected,fresnel);
+
+            float atten = max(1.0 - dot(dist,dist) * 0.001, 0.0);
+            color += SEA_WATER_COLOR * (p.y - SEA_HEIGHT) * 0.18 * atten;
+
+            color += vec3(specular(n,l,eye,60.0));
+
+            return color;
+        }
+
+        // tracing
+        vec3 getNormal(vec3 p, float eps) {
+            vec3 n;
+            n.y = map_detailed(p);
+            n.x = map_detailed(vec3(p.x+eps,p.y,p.z)) - n.y;
+            n.z = map_detailed(vec3(p.x,p.y,p.z+eps)) - n.y;
+            n.y = eps;
+            return normalize(n);
+        }
+
+        float heightMapTracing(vec3 ori, vec3 dir, out vec3 p) {
+            float tm = 0.0;
+            float tx = 1000.0;
+            float hx = map(ori + dir * tx);
+            if(hx > 0.0) return tx;
+            float hm = map(ori + dir * tm);
+            float tmid = 0.0;
+            for(int i = 0; i < NUM_STEPS; i++) {
+                tmid = mix(tm,tx, hm/(hm-hx));
+                p = ori + dir * tmid;
+            	float hmid = map(p);
+        		if(hmid < 0.0) {
+                	tx = tmid;
+                    hx = hmid;
+                } else {
+                    tm = tmid;
+                    hm = hmid;
+                }
+            }
+            return tmid;
+        }
+
+        void main() {
+        	vec2 uv = gl_FragCoord.xy / iResolution.xy;
+            uv = uv * 2.0 - 1.0;
+            uv.x *= iResolution.x / iResolution.y;
+            float time = iGlobalTime * 0.3 + iMouse.x*0.01;
+
+            // ray
+            vec3 ang = vec3(sin(time*3.0)*0.1,sin(time)*0.2+0.3,time);
+            vec3 ori = vec3(0.0,3.5,time*5.0);
+            vec3 dir = normalize(vec3(uv.xy,-2.0)); dir.z += length(uv) * 0.15;
+            dir = normalize(dir) * fromEuler(ang);
+
+            // tracing
+            vec3 p;
+            heightMapTracing(ori,dir,p);
+            vec3 dist = p - ori;
+            vec3 n = getNormal(p, dot(dist,dist) * EPSILON_NRM);
+            vec3 light = normalize(vec3(0.0,1.0,0.8));
+
+            // color
+            vec3 color = mix(
+                getSkyColor(dir),
+                getSeaColor(p,n,light,dir,dist),
+            	pow(smoothstep(0.0,-0.05,dir.y),0.3));
+
+            // post
+        	gl_FragColor = vec4(pow(color,vec3(0.75)), 1.0);
+        	}
+        </script>
+
+        <script>
+
+
+            var lightHelper;
+            var azimuth = -3.14,
+                inclination = -1,
+                xpos = 0,
+                ypos = 0,
+                zpos = 0,
+                sky,
+                renderer,
+                controls,
+                scene,
+                tuniform;
+
+          function init(){
+
+
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+
+            renderer.gammaInput = true;
+            renderer.gammaOutput = true;
+
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMapSoft = true;
+            renderer.shadowMapType = THREE.PCFShadowMap;
+            //renderer.shadowMap.renderReverseSided = false;
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
+            camera.position.set( -15, 2, 50 );
+
+            camera.lookAt( scene.position );
+
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+    				controls.addEventListener( 'change', render ); // remove when using animation loop
+    				// enable animation loop when using damping or autorotation
+    				//controls.enableDamping = true;
+    				//controls.dampingFactor = 0.25;
+    				//controls.enableZoom = false;
+            // add hemi lights
+
+            var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05 );
+            hemiLight.color.setHSL( 0.6, 1, 0.6 );
+            hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+            hemiLight.position.set( 0, 800, 0 );
+            scene.add( hemiLight );
+
+            // this is the Sun
+            dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+            dirLight.color.setHSL( 0.1, 1, 0.95 );
+            //dirLight.position.set( 5, 0.75, 1 );
+            //dirLight.position.set( 1, 1, 0 );
+            xpos = Math.cos(inclination) * Math.sin(azimuth),
+            ypos = Math.sin(inclination),
+            zpos = Math.cos(inclination) * Math.cos(azimuth);
+
+            dirLight.position.set(xpos, ypos, zpos);
+            dirLight.position.multiplyScalar( 50 );
+            scene.add( dirLight );
+
+            var axisHelper = new THREE.AxisHelper( 5 );
+            scene.add( axisHelper );
+
+            var helper = new THREE.CameraHelper( dirLight.shadow.camera );
+            scene.add( helper );
+
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = dirLight.shadow.mapSize.height = 1024*4;
+
+            var d = 1000;
+
+            dirLight.shadow.camera.left = -d;
+            dirLight.shadow.camera.right = d;
+            dirLight.shadow.camera.top = d;
+            dirLight.shadow.camera.bottom = -d;
+
+            // the magic is here - this needs to be tweaked if you change dimensions
+
+            dirLight.shadow.camera.near = 1;
+            dirLight.shadow.camera.far = 3500;
+            dirLight.shadow.bias = -0.000001;
+            //dirLight.shadowDarkness = 0.35;
+            scene.add( dirLight );
+
+            lightHelper = new THREE.DirectionalLightHelper( dirLight );
+    				scene.add(lightHelper);
+
+            scene.fog = new THREE.Fog(0x222233, 0, 20000);
+            renderer.setClearColor( scene.fog.color, 1 );
+
+
+    				var onProgress = function ( xhr ) {
+    					if ( xhr.lengthComputable ) {
+    						var percentComplete = xhr.loaded / xhr.total * 100;
+    						console.log( Math.round(percentComplete, 2) + '% downloaded' );
+    					}
+    				};
+
+    				var onError = function ( xhr ) { };
+
+    				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+
+    				var mtlLoader = new THREE.MTLLoader();
+    				mtlLoader.setPath( 'models/' );
+    				mtlLoader.load( 'main_building_ with environment and markings.mtl', function( materials ) {
+
+    					materials.preload();
+
+    					var objLoader = new THREE.OBJLoader();
+    					objLoader.setMaterials( materials );
+    					objLoader.setPath( 'models/' );
+    					objLoader.load( 'main_building_ with environment and markings.obj', function ( object ) {
+    						object.scale.set(0.02, 0.02, 0.02);
+    						//object.rotation.x = -Math.PI/2;
+                object.position.x = 0;
+    						object.position.y = 0;
+                object.position.z = 0;
+                object.rotation.x = 0;
+                object.rotation.y = 0;
+                object.rotation.z = 0;
+
+                mesh = object;
+                var g = 0;
+
+                var newGeo = new THREE.Object3D();
+
+                mesh.traverse( function ( child ) {
+
+                    if ( child instanceof THREE.Mesh ) {
+                        //console.log(child.name);
+                        tuniform = {
+                        	iGlobalTime: {
+                        		type: 'f',
+                        		value: 0.1
+                        	},
+                        	iResolution: {
+                        		type: 'v2',
+                        		value: new THREE.Vector2()
+                        	},
+                        	iMouse: {
+                        		type: 'v4',
+                        		value: new THREE.Vector2()
+                        	}
+                        };
+
+                        if(child.name == "water"){
+                          console.log(child);
+
+                          tuniform.iResolution.value.x = window.innerWidth;
+                          tuniform.iResolution.value.y = window.innerHeight;
+                          var waterMaterial = new THREE.ShaderMaterial({
+                          	uniforms: tuniform,
+                          	vertexShader: document.getElementById('water-vertex-shader').textContent,
+                          	fragmentShader: document.getElementById('water-fragment-shader').textContent
+                          });
+                          child.material = waterMaterial;
+                        }
+                        //newGeo.merge(child.geometry);
+                        //child.material.map = texture;
+                        child.castShadow = true;
+                        //child.receiveShadow = true;
+
+                    }
+
+                } );
+                newGeo.castShadow = true;
+    						//object.receiveShadow = true;
+    						//object.castShadow = true;
+    						scene.add( object );
+    						//document.getElementById('preloader').remove();
+
+    					}, onProgress, onError );
+
+    				});
+
+
+            // add skydome
+
+            var vertexShader = document.getElementById( 'vertexShader' ).textContent;
+            var fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
+            var uniforms = {
+                topColor:    { type: "c", value: new THREE.Color( 0x0077ff ) },
+                bottomColor: { type: "c", value: new THREE.Color( 0xffffff ) },
+                offset:      { type: "f", value: 33 },
+                exponent:    { type: "f", value: 0.6 }
+            }
+            uniforms.topColor.value.copy( hemiLight.color );
+
+            scene.fog.color.copy( uniforms.bottomColor.value );
+
+            var skyGeo = new THREE.SphereGeometry( 4000, 32, 15 );
+            var skyMat = new THREE.ShaderMaterial( { vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: uniforms, side: THREE.BackSide } );
+
+            sky = new THREE.Mesh( skyGeo, skyMat );
+            scene.add( sky );
+
+          }
+            init();
+            var clock = new THREE.Clock();
+            animate();
+
+            function animate() {
+                requestAnimationFrame( animate );
+                controls.update();
+                render();
+            }
+
+            function render() {
+
+
+                var delta = clock.getDelta();
+                if(tuniform){
+                  tuniform.iGlobalTime.value += clock.getDelta();
+                }
+              renderer.render( scene, camera );
+
+
+                //var time = new Date().getTime() * 0.0002;
+                 var time = 2.1;
+
+                var nsin = Math.sin(time);
+                var ncos = Math.cos(time);
+                //console.log('dirLight');
+                //console.log(1500*nsin, 2000*nsin, 2000*ncos);
+                // set the sun
+                //console.log('positions');
+                //console.log(xpos, ypos, zpos);
+
+                lightHelper.update();
+                if (inclination > 0.4 && inclination < 2.74)   // day
+                {
+                    sky.material.uniforms.topColor.value.setRGB(0.25,0.55,1);
+                    sky.material.uniforms.bottomColor.value.setRGB(1,1,1);
+                    var f = 1;
+                    dirLight.intensity = f;
+                    //dirLight.shadowDarkness = f*0.7;
+                }
+
+                else if (inclination <= 0.4 && inclination >= 0.0 )
+                {
+                    var f = inclination/0.4;
+                    dirLight.intensity = f;
+                    //dirLight.shadowDarkness = f*0.7;
+
+                    sky.material.uniforms.topColor.value.setRGB(0.25*f,0.55*f,1*f);
+                    sky.material.uniforms.bottomColor.value.setRGB(1*f,   1*f,1*f);
+                }
+
+                else if (inclination >= 2.74 && inclination <= 3.14)
+                {
+                    var f = (3.14-inclination)/0.4;
+                    dirLight.intensity = f;
+                    //dirLight.shadowDarkness = f*0.7;
+
+                    sky.material.uniforms.topColor.value.setRGB(0.25*f,0.55*f,1*f);
+                    sky.material.uniforms.bottomColor.value.setRGB(1*f,   1*f,1*f);
+                }
+                else  // night
+                {
+                    var f = 0;
+                    dirLight.intensity = f;
+                    //dirLight.shadowDarkness = f*0.7;
+                    sky.material.uniforms.topColor.value.setRGB(0,0,0);
+                    sky.material.uniforms.bottomColor.value.setRGB(0,0,0);
+                }
+
+
+
+            }
+
+        </script>
+        <script>
+          $(document).ready(function(){
+            $("#azimuth").bind("slider:changed", function (event, data) {
+              // The currently selected value of the slider
+              azimuth = data.value;
+              xpos = Math.cos(inclination) * Math.sin(azimuth),
+              ypos = Math.sin(inclination),
+              zpos = Math.cos(inclination) * Math.cos(azimuth);
+              dirLight.position.set( xpos, ypos, zpos);
+              dirLight.position.multiplyScalar( 50 );
+
+              //guiChanged();
+            });
+            $("#inclination").bind("slider:changed", function (event, data) {
+              // The currently selected value of the slider
+              inclination = data.value;
+              xpos = Math.cos(inclination) * Math.sin(azimuth),
+              ypos = Math.sin(inclination),
+              zpos = Math.cos(inclination) * Math.cos(azimuth);
+              dirLight.position.set( xpos, ypos, zpos);
+              dirLight.position.multiplyScalar( 50 );
+
+              //guiChanged();
+            });
+          });
+        </script>
+    </head>
+    <body></body>
+    </html>
