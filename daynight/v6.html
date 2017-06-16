@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Shadows</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+        <link href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+        <link href="css/simple-slider.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <style>
+          #toggle-units{
+            color: #333;
+          }
+          #toggle-units:hover{
+            opacity: 0.8;
+          }
+          #toggle-units.selected{
+            color: #8b0000;
+          }
+          div#preloader { position: fixed; left: 0; top: 0; z-index: 999; width: 100%; height: 100%; overflow: visible; background: #333 url('images/loading.gif') no-repeat center center; }
+        </style>
+        <script type="x-shader/x-vertex" id="vertexShader">
+
+            varying vec3 worldPosition;
+
+            void main() {
+                vec4 mPosition = modelMatrix * vec4( position, 1.0 );
+                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                worldPosition = mPosition.xyz;
+            }
+
+        </script>
+        <script src="js/jquery-1.9.1.js"></script>
+    		<script src="js/jquery-ui.js"></script>
+        <script src="js/three.js"></script>
+        <script src="js/loaders/DDSLoader.js"></script>
+        <script src="js/loaders/MTLLoader.js"></script>
+        <script src="js/loaders/OBJLoader.js"></script>
+        <script src="js/OrbitControls.js"></script>
+        <script src="js/Mirror.js"></script>
+        <script src="js/WaterShader.js"></script>
+        <script src="js/Detector.js"></script>
+        <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+          <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+          <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+          <script src="js/simple-slider.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+        <body>
+          <div id="preloader"><div id="preloader-status" style="position:absolute; left: 49%; top: 49%; color: white;">0%</div></div>
+          <div id="toggle-units" style="position: absolute; top:10px; right: 10px; z-index: 1000; cursor: pointer; "><i class="fa fa-3x fa-bullseye"></i></div>
+          <!-- Modal -->
+          <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">Modal Header</h4>
+                </div>
+                <div class="modal-body">
+                  <p>Some text in the modal.</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        <script type="x-shader/x-fragment" id="fragmentShader">
+
+            uniform vec3 topColor;
+            uniform vec3 bottomColor;
+            uniform float offset;
+            uniform float exponent;
+
+            varying vec3 worldPosition;
+
+            void main() {
+
+                float h = normalize( worldPosition + offset ).y;
+                gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( h, exponent ), 0.0 ) ), 1.0 );
+
+            }
+
+        </script>
+        <script>
+            var lightHelper;
+            var azimuth = -3.14,
+                inclination = -1,
+                xpos = 0,
+                ypos = 0,
+                zpos = 0,
+                sky,
+                renderer,
+                controls,
+                scene,
+                mesh,
+                unit;
+
+          var selectable_units = [
+            '803', '901', '902', '903', '904', '501', '502', '503', '703', '603', '403', '504', '701', '2401', '2301', '304', '204', '103', '104', '303', '201', '101', '1403', '1203', '1102', '1603', '1004', '1001', '1003', '1503', '1202', '1703', '1302'
+          ]
+
+          var selectable_positions = [];
+
+          var camera_view = "far";
+
+          var parameters = {
+            width: 2000,
+            height: 2000,
+            widthSegments: 250,
+            heightSegments: 250,
+            depth: 1500,
+            param: 4,
+            filterparam: 1
+          };
+
+        var waterNormals,
+            water;
+
+        var raycaster = new THREE.Raycaster();
+        var mouse = new THREE.Vector2();
+
+
+          function init(){
+
+            renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+
+            renderer.gammaInput = true;
+            renderer.gammaOutput = true;
+
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMapType = THREE.PCFShadowMap;
+
+            scene = new THREE.Scene();
+
+            scene.add( new THREE.AmbientLight( 0x444444 ) );
+
+
+            camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
+            //camera.position.set( 65, 3, 8 );
+            camera.position.set(4, -9, 3);
+
+            //camera.lookAt( 10, -30, 8 );
+
+
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+    				controls.addEventListener( 'change', render ); // remove when using animation loop
+            controls.maxDistance = 80;
+            controls.maxPolarAngle = 0.48 * Math.PI;
+            controls.target = new THREE.Vector3(0, -8.5, 0);
+            // add hemi lights
+
+
+            var light = new THREE.DirectionalLight( 0xffffbb, 1 );
+            light.position.set( 1, 1, - 1 );
+            light.position.multiplyScalar(50);
+            light.castShadow = true;
+
+            light.shadow.mapSize.width = 2048;
+    				light.shadow.mapSize.height = 2048;
+    				d = 50;
+    				light.shadow.camera.left = -d;
+    				light.shadow.camera.right = d;
+    				light.shadow.camera.top = d;
+    				light.shadow.camera.bottom = -d;
+    				light.shadow.camera.far = 3500;
+    				light.shadow.bias = -0.0001;
+            //light.target.set(0,-10,0);
+            scene.add( light );
+
+            lightHelper = new THREE.DirectionalLightHelper( light );
+    				scene.add(lightHelper);
+
+            waterNormals = new THREE.TextureLoader().load( 'images/waternormals.jpg' );
+            waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
+
+            water = new THREE.Water( renderer, camera, scene, {
+              textureWidth: 512,
+              textureHeight: 512,
+              waterNormals: waterNormals,
+              alpha: 	1.0,
+              sunDirection: light.position.clone().normalize(),
+              sunColor: 0xfdb813,
+              waterColor: 0xEBF4FA, //0x001e0f,
+              distortionScale: 50.0,
+            } );
+
+            // load skybox
+
+          var cubeMap = new THREE.CubeTexture( [] );
+          cubeMap.format = THREE.RGBFormat;
+
+          var loader = new THREE.ImageLoader();
+          loader.load( 'images/skyboxsun25degtest.png', function ( image ) {
+
+            var getSide = function ( x, y ) {
+
+              var size = 1024;
+
+              var canvas = document.createElement( 'canvas' );
+              canvas.width = size;
+              canvas.height = size;
+
+              var context = canvas.getContext( '2d' );
+              context.drawImage( image, - x * size, - y * size );
+
+              return canvas;
+
+            };
+
+            cubeMap.images[ 0 ] = getSide( 2, 1 ); // px
+            cubeMap.images[ 1 ] = getSide( 0, 1 ); // nx
+            cubeMap.images[ 2 ] = getSide( 1, 0 ); // py
+            cubeMap.images[ 3 ] = getSide( 1, 2 ); // ny
+            cubeMap.images[ 4 ] = getSide( 1, 1 ); // pz
+            cubeMap.images[ 5 ] = getSide( 3, 1 ); // nz
+            cubeMap.needsUpdate = true;
+
+          } );
+
+          var cubeShader = THREE.ShaderLib[ 'cube' ];
+          cubeShader.uniforms[ 'tCube' ].value = cubeMap;
+
+          var skyBoxMaterial = new THREE.ShaderMaterial( {
+            fragmentShader: cubeShader.fragmentShader,
+            vertexShader: cubeShader.vertexShader,
+            uniforms: cubeShader.uniforms,
+            depthWrite: false,
+            side: THREE.BackSide
+          } );
+
+          var skyBox = new THREE.Mesh(
+            new THREE.BoxGeometry( 1000, 1000, 1000 ),
+            skyBoxMaterial
+          );
+
+          scene.add( skyBox );
+          var axisHelper = new THREE.AxisHelper( 5 );
+
+          var geometry = new THREE.IcosahedronGeometry( 400, 4 );
+
+          for ( var i = 0, j = geometry.faces.length; i < j; i ++ ) {
+
+            geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
+
+          }
+
+          var material = new THREE.MeshPhongMaterial( {
+            vertexColors: THREE.FaceColors,
+            shininess: 100,
+            envMap: cubeMap
+          } );
+
+            //scene.fog=new THREE.FogExp2( 0xffffff, 0.15 );
+            scene.fog = new THREE.Fog(0xffffff, 0.015, 1000);
+            //renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
+
+    				var onProgress = function ( xhr ) {
+    					if ( xhr.lengthComputable ) {
+    						var percentComplete = xhr.loaded / xhr.total * 100;
+    						//console.log( Math.round(percentComplete, 2) + '% downloaded' );
+                $('#preloader-status').html(Math.round(percentComplete, 2) + '%');
+    					}
+    				};
+
+    				var onError = function ( xhr ) { };
+
+    				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+
+    				var mtlLoader = new THREE.MTLLoader();
+    				mtlLoader.setPath( 'models/' );
+    				mtlLoader.load( 'main_building_ with environment and markings.mtl', function( materials ) {
+
+    					materials.preload();
+
+    					var objLoader = new THREE.OBJLoader();
+    					objLoader.setMaterials( materials );
+    					objLoader.setPath( 'models/' );
+    					objLoader.load( 'main_building_ with environment and markings.obj', function ( object ) {
+    						object.scale.set(0.02, 0.02, 0.02);
+    						//object.rotation.x = -Math.PI/2;
+                object.position.x = 0;
+    						object.position.y = -10;
+                object.position.z = 0;
+                object.rotation.x = 0;
+                object.rotation.y = 0;
+                object.rotation.z = 0;
+
+                mesh = object;
+                var g = 0;
+
+                var newGeo = new THREE.Object3D();
+
+                mesh.traverse( function ( child ) {
+
+                    if ( child instanceof THREE.Mesh ) {
+                        //console.log(child.name);
+                        //console.log(child);
+                        if(child.name == "Sphere001" || child.name == "Object220"){
+                          child.visible = false;
+                        }
+                        else if(child.name.indexOf('Text') !== -1){
+                          child.visible = false;
+                        }
+                        else if(child.name == "water"){
+                          //console.log(child);
+                          child.material = water.material;
+                          child.add( water );
+                          //child.rotation.x = - Math.PI * 0.5;
+                        }
+                        else if(child.name == "2301"){
+                          console.log(child);
+                        }
+                        else if(child.name == "glass"){
+                          child.material.opacity = 0.9;
+                          child.material.reflectivity = 0.3;
+                          child.material.needsUpdate = true;
+                          console.log(child);
+
+                        }
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+
+                        if($.inArray(child.name, selectable_units) >-1){
+                          //console.log(child.name);
+                          child.visible = false;
+                          selectable_positions.push(child.id);
+
+                        }
+                    }
+
+                } );
+                scene.add( object );
+                document.getElementById('preloader').remove();
+
+
+    					}, onProgress, onError );
+
+    				});
+
+          }
+            init();
+            var clock = new THREE.Clock();
+            animate();
+
+            window.addEventListener( 'mousemove', onMouseMove, false );
+
+            function onMouseMove( event ) {
+              mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+            }
+
+            function animate() {
+                requestAnimationFrame( animate );
+                controls.update();
+                TWEEN.update();
+                render();
+            }
+
+            function render() {
+                var delta = clock.getDelta();
+
+                raycaster.setFromCamera( mouse, camera );
+              	var intersects = raycaster.intersectObjects( scene.children, true );
+                $('html,body').css('cursor', 'default');
+                if(intersects.length){
+                  if(intersects[0].object.name == "2301"){
+                    unit = intersects[0].object;
+                    $('html,body').css('cursor', 'pointer');
+                    //$('#myModal').modal('show');
+                  }
+                  else{
+                    //$('#myModal').modal('hide');
+                  }
+
+                }
+
+                water.material.uniforms.time.value += 0.02 / 60.0;
+                water.render();
+                renderer.render( scene, camera );
+
+          }
+
+        </script>
+    </head>
+    <script>
+      $('#change-view').on('click', function(){
+          if(camera_view == "far") {
+            //console.log(camera_view);
+            //camera.position.set(4, -9, 3);
+            camera_view = "near";
+            var from = {
+              x : camera.position.x,
+              y : camera.position.y,
+              z : camera.position.z
+            };
+
+            var to = {
+              x : 4,
+              y : -9,
+              z : 3
+            };
+            var tween = new TWEEN.Tween(from)
+            .to(to,1500)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onUpdate(function(){
+                camera.position.x = this.x;
+                camera.position.y = this.y;
+                camera.position.z = this.z;
+              })
+            .start();
+          }
+          else {
+            //camera.position.set(65, 3, 8);
+            //console.log(camera_view);
+
+            camera_view = "far";
+            var from = {
+              x : camera.position.x,
+              y : camera.position.y,
+              z : camera.position.z
+            };
+
+            var to = {
+              x : 65,
+              y : 3,
+              z : 8
+            };
+            var tween = new TWEEN.Tween(from)
+            .to(to,1500)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onUpdate(function(){
+                camera.position.x = this.x;
+                camera.position.y = this.y;
+                camera.position.z = this.z;
+              })
+            .start();
+          }
+      });
+    </script>
+    <script>
+      $(document).ready(function(){
+        $('#toggle-units').on('click', function(){
+          if($('#toggle-units').hasClass('selected')){
+            $('#toggle-units').removeClass('selected');
+
+            mesh.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    if($.inArray(child.name, selectable_units) >-1){
+                      child.visible = false;
+                    }
+                }
+          });
+        }
+          else {
+            $('#toggle-units').addClass('selected');
+            mesh.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    if($.inArray(child.name, selectable_units) >-1){
+                      child.visible = true;
+                    }
+                }
+          });
+          }
+        });
+      });
+
+    </script>
+    </html>
