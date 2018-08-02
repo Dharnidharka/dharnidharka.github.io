@@ -1,0 +1,40 @@
+html, body {
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    color: #333;
+}
+
+#map{
+  height: 100%;
+  padding: 0px;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+#heatmap-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 50px;
+  padding: 5px;
+}
+
+#heatmap-sizes {
+  position: absolute;
+  bottom: 50px;
+  left: 20px;
+}
+
+.heatmap-btn {
+  padding: 5px;
+  width: 32px;
+}
+
+.heatmap-btn:hover {
+  opacity: 0.8;
+}
+
+.btn-selected {
+  color: white;
+  background-color: black;
+}
