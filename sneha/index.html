@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link href="https://fonts.googleapis.com/css?family=Caveat&display=swap" rel="stylesheet">
+	<title>Happy birthday, Sneha</title>
+  <style>
+      body {
+          margin: 0;
+          overflow: hidden;
+					font-family: 'Caveat', cursive;
+      }
+			#startDiv {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				text-align: center;
+				z-index: 999;
+				background-color: black;
+				color: white;
+				vertical-align: middle;
+				font-size: 28px;
+				line-height: 100%;
+			}
+			#textStart {
+					position: absolute;
+					top: 50%;
+					width: 100%;
+			}
+			#birthday-message {
+				z-index: 1000;
+				font-size: 28px;
+				background-color: #f4c2c2;
+				padding: 20px;
+				position: absolute;
+				top: 60%;
+			}
+  </style>
+</head>
+
+<body>
+
+	<div id="startDiv">
+		<div id="textStart">
+			Heya, a Happy Happy Birthday to you. <br /><br />(Click here)
+		</div>
+	</div>
+
+	<div id="birthday-message"></div>
+
+	<script type="text/javascript" src="js/lib/jquery-1.8.2.js"></script>
+	<script type="text/javascript" src="js/lib/TweenMax.min.js"></script>
+	<script type="text/javascript" src="js/lib/three.min.js"></script>
+	<script type="text/javascript" src="js/lib/TrackballControls.js"></script>
+
+	<script type="text/javascript" src="js/paramFunctions.js"></script>
+	<script type="text/javascript" src="js/geometryArrays.js"></script>
+	<script type="text/javascript" src="js/sceneSetup.js"></script>
+
+<script>
+
+var renderer;
+var scene;
+var camera;
+var geom;
+var rotationFlag = 1;
+var t1;
+var geomArrayX = [];
+var geomArrayY = [];
+var geomArrayZ = [];
+
+var geom1ArrayX = [];
+var geom1ArrayY = [];
+var geom1ArrayZ = [];
+
+var geom2ArrayX = [];
+var geom2ArrayY = [];
+var geom2ArrayZ = [];
+
+var geom3ArrayX = [];
+var geom3ArrayY = [];
+var geom3ArrayZ = [];
+
+var geomScatterX = [];
+var geomScatterY = [];
+var geomScatterZ = [];
+
+var loadImageFlag = 0;
+var currentTexture = 'texture1';
+
+var t1;
+
+function init() {
+
+  addScene();
+
+	addCamera();
+
+	addRenderer();
+
+  addLights();
+
+  createPointCloud();
+
+	// createFirstGeometryArray();
+	//
+	// createScatterArray();
+	//
+	// createSecondGeometryArray();
+	//
+	// createThirdGeometryArray();
+	// mesh.onUpdate = func
+
+	// t1.to(mesh.position, 10, finalMesh);
+
+	// t1.to(geomArrayX, 5,﻿ geomScatterX, 5)
+	// 	.to(geomArrayY, 5,﻿ geomScatterY, 5)
+	//   .to(geomArrayZ, 5,﻿ geomScatterZ, 5)
+	// 	.add('endEffect1')
+	// 	.to(geomArrayX, 5, geom2ArrayX, 10)
+	// 	.to(geomArrayY, 5, geom2ArrayY, 10)
+	// 	.to(geomArrayZ, 5, geom2ArrayZ, 10)
+	// 	.add('endEffect2')
+	// 	.to(geomArrayX, 5, geomScatterX, 20)
+	// 	.to(geomArrayY, 5, geomScatterY, 20)
+	// 	.to(geomArrayZ, 5, geomScatterZ, 20)
+	// 	.add('endEffect3')
+	// 	.to(geomArrayX, 5, geom3ArrayX, 25)
+	// 	.to(geomArrayY, 5, geom3ArrayY, 25)
+	// 	.to(geomArrayZ, 5, geom3ArrayZ, 25)
+	// 	.add('endEffect4')
+	// 	.to(geomArrayX, 5, geomScatterX, 35)
+	// 	.to(geomArrayY, 5, geomScatterY, 35)
+	// 	.to(geomArrayZ, 5, geomScatterZ, 35)
+	// 	.add('endEffect5')
+	// 	.to(geomArrayX, 5, geom1ArrayX, 40)
+	// 	.to(geomArrayY, 5, geom1ArrayY, 40)
+	// 	.to(geomArrayZ, 5, geom1ArrayZ, 40)
+	// 	.add('endEffect6');
+
+	addSoundEffect();
+
+	window.addEventListener( 'resize', onWindowResize, false );
+
+  // call the render function
+  render();
+
+}
+
+
+function render() {
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+
+		if(loadImageFlag == 1) {
+
+			for ( i = 0; i < cube_count; i ++ ) {
+
+				mesh = meshes[ i ];
+
+				mesh.scale.x += 0.005;
+				mesh.scale.y += 0.005;
+				mesh.scale.z += 0.005;
+
+				if(mesh.scale.x >= 1) {
+					loadImageFlag = 0;
+					textureChangedFlag = 0;
+					setTimeout(function() {
+						loadImageFlag = 2;
+					}, 3000);
+				}
+
+			}
+
+		}
+
+		else if(loadImageFlag == 2) {
+
+			var count = 0;
+
+			for ( i = 0; i < cube_count; i ++ ) {
+
+				mesh = meshes[ i ];
+
+				mesh.scale.x -= 0.01;
+				mesh.scale.y -= 0.01;
+				mesh.scale.z -= 0.01;
+
+				if(mesh.scale.x <= 0) {
+					count++;
+					if(currentTexture == "texture1") {
+						mesh.material.map = texture2;
+					} else if(currentTexture == "texture2") {
+						mesh.material.map = texture3;
+					} else {
+						mesh.material.map = texture;
+					}
+
+					loadImageFlag = 1;
+					if(count == cube_count-1) {
+						if(currentTexture == "texture1") {
+							currentTexture = 'texture2';
+						} else if(currentTexture == "texture2"){
+							currentTexture = 'texture3';
+						} else {
+							currentTexture = 'texture1';
+						}
+					}
+
+				}
+			}
+		}
+
+		// else if(loadImageFlag == 3) {
+		//
+		// 	for ( i = 0; i < cube_count; i ++ ) {
+		//
+		// 		mesh = meshes[ i ];
+		//
+		// 		mesh.scale.x += 0.005;
+		// 		mesh.scale.y += 0.005;
+		// 		mesh.scale.z += 0.005;
+		//
+		// 		if(mesh.scale.x >= 1) {
+		// 			loadImageFlag = 0;
+		// 			textureChangedFlag = 0;
+		// 			setTimeout(function() {
+		// 				loadImageFlag = 2;
+		// 			}, 3000);
+		// 		}
+		//
+		// 	}
+		// }
+
+}
+
+function addSoundEffect() {
+
+	$('#startDiv').on('click', function() {
+
+		loadImageFlag = 1;
+
+		$('#startDiv').css('display', 'none');
+
+		// create an AudioListener and add it to the camera
+		var listener = new THREE.AudioListener();
+
+		// create a global audio source
+		var sound = new THREE.Audio( listener );
+
+		// load a sound and set it as the Audio object's buffer
+		var audioLoader = new THREE.AudioLoader();
+		audioLoader.load( 'assets/song.mp3', function( buffer ) {
+			sound.setBuffer( buffer );
+			sound.setLoop( true );
+			sound.setVolume( 0.5 );
+			sound.play();
+		});
+
+		demo();
+
+	});
+
+}
+
+$(window).load(function() {
+
+	t1 = new TimelineLite();
+	init();
+
+});
+
+function sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+}
+var messages = ["Yeh to ik rasm hai jo ada karate hai...", "Warna farishton ke janamdin ko kaha manate hai...", "A Very Happy Birthday to you Sneha !"];
+
+var textEl = $('#birthday-message');
+
+async function demo() {
+		textEl.text("");
+		for( var message in messages){
+				var messageText = messages[message];
+				for(var character in messageText){
+						var a = textEl.text();
+						await sleep(100);
+						textEl.text(a + messageText[character]);
+				}
+				await sleep(2000);
+				for(var character in messageText){
+						await sleep(50);
+						textEl.text(textEl.text().slice(0, -1));
+				}
+		}
+		demo();
+}
+
+</script>
+
+</body>
+</html>

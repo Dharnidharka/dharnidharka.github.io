@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+<head>
+    <script src="http://threejs.org/build/three.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function() {
+
+            // create an AudioListener and add it to the camera
+            var listener = new THREE.AudioListener();
+
+            //initialize attributes
+            var WIDTH = 400, HEIGHT = 300;
+            var VIEW_ANGLE = 75, ASPECT = WIDTH / HEIGHT, NEAR = 1, FAR = 10000;
+            var $canvas = $('#canvas');
+            // create a WebGL renderer, camera and a scene
+            var renderer = new THREE.WebGLRenderer({ alpha: true });
+            var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE, ASPECT, NEAR, FAR  );
+            var scene = new THREE.Scene();
+            camera.position.z = 150;
+
+            camera.add( listener );
+
+            // create a global audio source
+            var sound = new THREE.Audio( listener );
+
+            $(document).on('click', function() {
+
+              // load a sound and set it as the Audio object's buffer
+              var audioLoader = new THREE.AudioLoader();
+              audioLoader.load( 'assets/song.mp3', function( buffer ) {
+                sound.setBuffer( buffer );
+                sound.setLoop( true );
+                sound.setVolume( 0.5 );
+                sound.play();
+              });
+
+            });
+
+            var loader = new THREE.FontLoader();
+
+            loader.load( 'fonts/gentilis_bold.typeface.json', function ( font ) {
+
+            	var geometry = new THREE.TextGeometry( 'Hello three.js!', {
+            		font: font,
+            		size: 80,
+            		height: 5,
+            		curveSegments: 12,
+            		bevelEnabled: true,
+            		bevelThickness: 10,
+            		bevelSize: 8,
+            		bevelOffset: 0,
+            		bevelSegments: 5
+            	} );
+
+              console.log(geometry);
+              let material = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 0.50 });
+              mesh = new THREE.Points(geometry, material);
+              console.log(mesh);
+              scene.add(mesh);
+
+            } );
+
+            // start the renderer
+            renderer.setSize(WIDTH, HEIGHT);
+            $canvas.append(renderer.domElement);
+            // create the sphere's material
+            var material = new THREE.MeshBasicMaterial(
+                    {
+                        color: 0xffffff,
+                        wireframe: true
+                    });
+            var geometry = new THREE.CylinderGeometry( 50, 50, 35, 32 );
+            var geometry2 = new THREE.CylinderGeometry( 5, 5, 20, 16 );
+            //var geometry3 = new THREE.BoxGeometry( 100, 100, 100, 5, 5, 5 );
+            var geometry4 = new THREE.OctahedronGeometry( 6, 0 );
+            //var cake = new THREE.Mesh( new THREE.CylinderGeometry( 5, 5, 20, 32 ), material );
+            var shape = new THREE.Mesh( geometry, material );
+            var shape2 = new THREE.Mesh( geometry2, material );
+            //var shape3 = new THREE.Mesh( geometry3, material );
+            var shape4 = new THREE.Mesh( geometry4, material );
+            scene.add(shape);
+            scene.add(shape2);
+            //scene.add(shape3);
+            scene.add(shape4);
+            scene.add(camera);
+            shape.rotation.x = 10.01;
+            shape2.rotation.x = 10.01;
+            shape2.position.y +=25;
+            shape4.rotation.x = 10.01;
+            shape4.position.y +=42;
+            function render() {
+                requestAnimationFrame(render);
+                //rotate the cube
+    //	shape.rotation.x += 0.01;
+                shape.rotation.y += 0.01;
+                shape2.rotation.y += 0.01;
+    //	shape3.rotation.y -= 0.01;
+    //	shape3.rotation.x += 0.01;
+                shape4.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            };
+            render();
+            // text
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            var messages = ["THE YEAR IS 2017", "THE ENTIRE CITY IS BURNING", "OH WAIT, MY MISTAKE", "IT'S JUST *A LOT* OF CAKE CANDLES :)", "HAPPY BIRTHDAY JIM", "<3 <3 <3", "THANK YOU FOR OBSIDIAN"];
+            var textEl = $('#vote-here');
+            async function demo() {
+                textEl.text("");
+                for( var message in messages){
+                    var messageText = messages[message];
+                    for(var character in messageText){
+                        var a = textEl.text();
+                        await sleep(100);
+                        textEl.text(a + messageText[character]);
+                    }
+                    await sleep(2000);
+                    for(var character in messageText){
+                        await sleep(50);
+                        textEl.text(textEl.text().slice(0, -1));
+                    }
+                }
+                demo();
+            }
+            demo();
+        });
+    </script>
+    <style>
+        #canvas{
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+            width: 400px;
+            height: 300px;
+        }
+        body {
+            background: #000;
+        }
+        @font-face {
+            font-family: "PC Senior";
+            src: url(pcsenior.ttf) format("truetype"); }
+        #vote-here {
+//            position: relative;
+            text-align: left;
+            left: 0; }
+        #vote-here {
+            color: #fff;
+            font: 100% 'PC Senior';
+            font-size: 2.5em;
+            position: absolute;
+            top: 10%;
+            left: 400px;
+            margin-right: 100px;
+//            transform: translate(-50%, -50%);
+            text-shadow: 0 0 0.2em #0a0a0a;
+            opacity: 0.9;
+            -webkit-margin-before: 0;
+            -webkit-margin-after: 0;
+//            width: 60%;
+            max-width: calc(100vw - 450);
+            vertical-align: top;
+        }
+        .float-left{
+            float: left;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div id="canvas">
+    </div>
+    <div id="vote-here">
+    </div>
+</div>
+</body>
+</html>
