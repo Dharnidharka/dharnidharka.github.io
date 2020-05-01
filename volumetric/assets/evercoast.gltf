@@ -1,0 +1,530 @@
+{
+    "asset": {
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "name": "-scene",
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "scene": 0,
+    "nodes": [
+        {
+            "name": "",
+            "extras": {
+                "Flipbook": {
+                    "frames": [
+                        {
+                            "mesh": "evercoast.0001.gltf",
+                            "texture": "evercoast_0001.jpg"
+                        }, {
+                            "mesh": "evercoast.0002.gltf",
+                            "texture": "evercoast_0002.jpg"
+                        }, {
+                            "mesh": "evercoast.0003.gltf",
+                            "texture": "evercoast_0003.jpg"
+                        }, {
+                            "mesh": "evercoast.0004.gltf",
+                            "texture": "evercoast_0004.jpg"
+                        }, {
+                            "mesh": "evercoast.0005.gltf",
+                            "texture": "evercoast_0005.jpg"
+                        }, {
+                            "mesh": "evercoast.0006.gltf",
+                            "texture": "evercoast_0006.jpg"
+                        }, {
+                            "mesh": "evercoast.0007.gltf",
+                            "texture": "evercoast_0007.jpg"
+                        }, {
+                            "mesh": "evercoast.0008.gltf",
+                            "texture": "evercoast_0008.jpg"
+                        }, {
+                            "mesh": "evercoast.0009.gltf",
+                            "texture": "evercoast_0009.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0010.gltf",
+                            "texture": "evercoast_0010.jpg"
+                        }, {
+                            "mesh": "evercoast.0011.gltf",
+                            "texture": "evercoast_0011.jpg"
+                        }, {
+                            "mesh": "evercoast.0012.gltf",
+                            "texture": "evercoast_0012.jpg"
+                        }, {
+                            "mesh": "evercoast.0013.gltf",
+                            "texture": "evercoast_0013.jpg"
+                        }, {
+                            "mesh": "evercoast.0014.gltf",
+                            "texture": "evercoast_0014.jpg"
+                        }, {
+                            "mesh": "evercoast.0015.gltf",
+                            "texture": "evercoast_0015.jpg"
+                        }, {
+                            "mesh": "evercoast.0016.gltf",
+                            "texture": "evercoast_0016.jpg"
+                        }, {
+                            "mesh": "evercoast.0017.gltf",
+                            "texture": "evercoast_0017.jpg"
+                        }, {
+                            "mesh": "evercoast.0018.gltf",
+                            "texture": "evercoast_0018.jpg"
+                        }, {
+                            "mesh": "evercoast.0019.gltf",
+                            "texture": "evercoast_0019.jpg"
+                        }, {
+                            "mesh": "evercoast.0020.gltf",
+                            "texture": "evercoast_0020.jpg"
+                        }, {
+                            "mesh": "evercoast.0021.gltf",
+                            "texture": "evercoast_0021.jpg"
+                        }, {
+                            "mesh": "evercoast.0022.gltf",
+                            "texture": "evercoast_0022.jpg"
+                        }, {
+                            "mesh": "evercoast.0023.gltf",
+                            "texture": "evercoast_0023.jpg"
+                        }, {
+                            "mesh": "evercoast.0024.gltf",
+                            "texture": "evercoast_0024.jpg"
+                        }, {
+                            "mesh": "evercoast.0025.gltf",
+                            "texture": "evercoast_0025.jpg"
+                        }, {
+                            "mesh": "evercoast.0026.gltf",
+                            "texture": "evercoast_0026.jpg"
+                        }, {
+                            "mesh": "evercoast.0027.gltf",
+                            "texture": "evercoast_0027.jpg"
+                        }, {
+                            "mesh": "evercoast.0028.gltf",
+                            "texture": "evercoast_0028.jpg"
+                        }, {
+                            "mesh": "evercoast.0029.gltf",
+                            "texture": "evercoast_0029.jpg"
+                        }, {
+                            "mesh": "evercoast.0030.gltf",
+                            "texture": "evercoast_0030.jpg"
+                        }, {
+                            "mesh": "evercoast.0031.gltf",
+                            "texture": "evercoast_0031.jpg"
+                        }, {
+                            "mesh": "evercoast.0032.gltf",
+                            "texture": "evercoast_0032.jpg"
+                        }, {
+                            "mesh": "evercoast.0033.gltf",
+                            "texture": "evercoast_0033.jpg"
+                        }, {
+                            "mesh": "evercoast.0034.gltf",
+                            "texture": "evercoast_0034.jpg"
+                        }, {
+                            "mesh": "evercoast.0035.gltf",
+                            "texture": "evercoast_0035.jpg"
+                        }, {
+                            "mesh": "evercoast.0036.gltf",
+                            "texture": "evercoast_0036.jpg"
+                        }, {
+                            "mesh": "evercoast.0037.gltf",
+                            "texture": "evercoast_0037.jpg"
+                        }, {
+                            "mesh": "evercoast.0038.gltf",
+                            "texture": "evercoast_0038.jpg"
+                        }, {
+                            "mesh": "evercoast.0040.gltf",
+                            "texture": "evercoast_0040.jpg"
+                        }, {
+                            "mesh": "evercoast.0041.gltf",
+                            "texture": "evercoast_0041.jpg"
+                        }, {
+                            "mesh": "evercoast.0042.gltf",
+                            "texture": "evercoast_0042.jpg"
+                        }, {
+                            "mesh": "evercoast.0043.gltf",
+                            "texture": "evercoast_0043.jpg"
+                        }, {
+                            "mesh": "evercoast.0044.gltf",
+                            "texture": "evercoast_0044.jpg"
+                        }, {
+                            "mesh": "evercoast.0045.gltf",
+                            "texture": "evercoast_0045.jpg"
+                        }, {
+                            "mesh": "evercoast.0046.gltf",
+                            "texture": "evercoast_0046.jpg"
+                        }, {
+                            "mesh": "evercoast.0047.gltf",
+                            "texture": "evercoast_0047.jpg"
+                        }, {
+                            "mesh": "evercoast.0048.gltf",
+                            "texture": "evercoast_0048.jpg"
+                        }, {
+                            "mesh": "evercoast.0049.gltf",
+                            "texture": "evercoast_0049.jpg"
+                        }, {
+                            "mesh": "evercoast.0050.gltf",
+                            "texture": "evercoast_0050.jpg"
+                        }, {
+                            "mesh": "evercoast.0051.gltf",
+                            "texture": "evercoast_0051.jpg"
+                        }, {
+                            "mesh": "evercoast.0052.gltf",
+                            "texture": "evercoast_0052.jpg"
+                        }, {
+                            "mesh": "evercoast.0053.gltf",
+                            "texture": "evercoast_0053.jpg"
+                        }, {
+                            "mesh": "evercoast.0054.gltf",
+                            "texture": "evercoast_0054.jpg"
+                        }, {
+                            "mesh": "evercoast.0055.gltf",
+                            "texture": "evercoast_0055.jpg"
+                        }, {
+                            "mesh": "evercoast.0056.gltf",
+                            "texture": "evercoast_0056.jpg"
+                        }, {
+                            "mesh": "evercoast.0057.gltf",
+                            "texture": "evercoast_0057.jpg"
+                        }, {
+                            "mesh": "evercoast.0058.gltf",
+                            "texture": "evercoast_0058.jpg"
+                        }, {
+                            "mesh": "evercoast.0059.gltf",
+                            "texture": "evercoast_0059.jpg"
+                        }, {
+                            "mesh": "evercoast.0060.gltf",
+                            "texture": "evercoast_0060.jpg"
+                        }, {
+                            "mesh": "evercoast.0061.gltf",
+                            "texture": "evercoast_0061.jpg"
+                        }, {
+                            "mesh": "evercoast.0062.gltf",
+                            "texture": "evercoast_0062.jpg"
+                        }, {
+                            "mesh": "evercoast.0063.gltf",
+                            "texture": "evercoast_0063.jpg"
+                        }, {
+                            "mesh": "evercoast.0064.gltf",
+                            "texture": "evercoast_0064.jpg"
+                        }, {
+                            "mesh": "evercoast.0065.gltf",
+                            "texture": "evercoast_0065.jpg"
+                        }, {
+                            "mesh": "evercoast.0066.gltf",
+                            "texture": "evercoast_0066.jpg"
+                        }, {
+                            "mesh": "evercoast.0067.gltf",
+                            "texture": "evercoast_0067.jpg"
+                        }, {
+                            "mesh": "evercoast.0068.gltf",
+                            "texture": "evercoast_0068.jpg"
+                        }, {
+                            "mesh": "evercoast.0069.gltf",
+                            "texture": "evercoast_0069.jpg"
+                        }, {
+                            "mesh": "evercoast.0070.gltf",
+                            "texture": "evercoast_0070.jpg"
+                        }, {
+                            "mesh": "evercoast.0071.gltf",
+                            "texture": "evercoast_0071.jpg"
+                        }, {
+                            "mesh": "evercoast.0072.gltf",
+                            "texture": "evercoast_0072.jpg"
+                        }, {
+                            "mesh": "evercoast.0073.gltf",
+                            "texture": "evercoast_0073.jpg"
+                        }, {
+                            "mesh": "evercoast.0074.gltf",
+                            "texture": "evercoast_0074.jpg"
+                        }, {
+                            "mesh": "evercoast.0075.gltf",
+                            "texture": "evercoast_0075.jpg"
+                        }, {
+                            "mesh": "evercoast.0076.gltf",
+                            "texture": "evercoast_0076.jpg"
+                        }, {
+                            "mesh": "evercoast.0077.gltf",
+                            "texture": "evercoast_0077.jpg"
+                        }, {
+                            "mesh": "evercoast.0078.gltf",
+                            "texture": "evercoast_0078.jpg"
+                        }, {
+                            "mesh": "evercoast.0079.gltf",
+                            "texture": "evercoast_0079.jpg"
+                        }, {
+                            "mesh": "evercoast.0080.gltf",
+                            "texture": "evercoast_0080.jpg"
+                        }, {
+                            "mesh": "evercoast.0081.gltf",
+                            "texture": "evercoast_0081.jpg"
+                        }, {
+                            "mesh": "evercoast.0082.gltf",
+                            "texture": "evercoast_0082.jpg"
+                        }, {
+                            "mesh": "evercoast.0083.gltf",
+                            "texture": "evercoast_0083.jpg"
+                        }, {
+                            "mesh": "evercoast.0084.gltf",
+                            "texture": "evercoast_0084.jpg"
+                        }, {
+                            "mesh": "evercoast.0085.gltf",
+                            "texture": "evercoast_0085.jpg"
+                        }, {
+                            "mesh": "evercoast.0086.gltf",
+                            "texture": "evercoast_0086.jpg"
+                        }, {
+                            "mesh": "evercoast.0087.gltf",
+                            "texture": "evercoast_0087.jpg"
+                        }, {
+                            "mesh": "evercoast.0088.gltf",
+                            "texture": "evercoast_0088.jpg"
+                        }, {
+                            "mesh": "evercoast.0089.gltf",
+                            "texture": "evercoast_0089.jpg"
+                        }, {
+                            "mesh": "evercoast.0090.gltf",
+                            "texture": "evercoast_0090.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0091.gltf",
+                            "texture": "evercoast_0091.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0092.gltf",
+                            "texture": "evercoast_0092.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0093.gltf",
+                            "texture": "evercoast_0093.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0094.gltf",
+                            "texture": "evercoast_0094.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0095.gltf",
+                            "texture": "evercoast_0095.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0096.gltf",
+                            "texture": "evercoast_0096.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0097.gltf",
+                            "texture": "evercoast_0097.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0098.gltf",
+                            "texture": "evercoast_0098.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0099.gltf",
+                            "texture": "evercoast_0099.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0100.gltf",
+                            "texture": "evercoast_0100.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0101.gltf",
+                            "texture": "evercoast_0101.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0102.gltf",
+                            "texture": "evercoast_0102.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0103.gltf",
+                            "texture": "evercoast_0103.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0104.gltf",
+                            "texture": "evercoast_0104.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0105.gltf",
+                            "texture": "evercoast_0105.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0106.gltf",
+                            "texture": "evercoast_0106.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0107.gltf",
+                            "texture": "evercoast_0107.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0108.gltf",
+                            "texture": "evercoast_0108.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0109.gltf",
+                            "texture": "evercoast_0109.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0110.gltf",
+                            "texture": "evercoast_0110.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0111.gltf",
+                            "texture": "evercoast_0111.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0112.gltf",
+                            "texture": "evercoast_0112.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0113.gltf",
+                            "texture": "evercoast_0113.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0114.gltf",
+                            "texture": "evercoast_0114.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0115.gltf",
+                            "texture": "evercoast_0115.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0116.gltf",
+                            "texture": "evercoast_0116.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0117.gltf",
+                            "texture": "evercoast_0117.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0118.gltf",
+                            "texture": "evercoast_0118.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0119.gltf",
+                            "texture": "evercoast_0119.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0120.gltf",
+                            "texture": "evercoast_0120.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0121.gltf",
+                            "texture": "evercoast_0121.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0122.gltf",
+                            "texture": "evercoast_0122.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0123.gltf",
+                            "texture": "evercoast_0123.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0124.gltf",
+                            "texture": "evercoast_0124.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0125.gltf",
+                            "texture": "evercoast_0125.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0126.gltf",
+                            "texture": "evercoast_0126.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0127.gltf",
+                            "texture": "evercoast_0127.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0128.gltf",
+                            "texture": "evercoast_0128.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0129.gltf",
+                            "texture": "evercoast_0129.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0130.gltf",
+                            "texture": "evercoast_0130.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0131.gltf",
+                            "texture": "evercoast_0131.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0132.gltf",
+                            "texture": "evercoast_0132.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0133.gltf",
+                            "texture": "evercoast_0133.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0134.gltf",
+                            "texture": "evercoast_0134.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0135.gltf",
+                            "texture": "evercoast_0135.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0136.gltf",
+                            "texture": "evercoast_0136.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0137.gltf",
+                            "texture": "evercoast_0137.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0138.gltf",
+                            "texture": "evercoast_0138.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0139.gltf",
+                            "texture": "evercoast_0139.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0140.gltf",
+                            "texture": "evercoast_0140.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0141.gltf",
+                            "texture": "evercoast_0141.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0142.gltf",
+                            "texture": "evercoast_0142.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0143.gltf",
+                            "texture": "evercoast_0143.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0144.gltf",
+                            "texture": "evercoast_0144.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0145.gltf",
+                            "texture": "evercoast_0145.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0146.gltf",
+                            "texture": "evercoast_0146.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0147.gltf",
+                            "texture": "evercoast_0147.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0148.gltf",
+                            "texture": "evercoast_0148.jpg"
+                        },
+                        {
+                            "mesh": "evercoast.0149.gltf",
+                            "texture": "evercoast_0149.jpg"
+                        }
+                     ]
+                }
+            }
+        }
+    ]
+}
