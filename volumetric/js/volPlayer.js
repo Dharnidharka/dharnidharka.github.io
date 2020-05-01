@@ -9,7 +9,6 @@ const tmpGeometry = new THREE.BufferGeometry();
 const objLoader = new OBJLoader();
 const textureLoader = new THREE.TextureLoader();
 const gltfLoader = new GLTFLoader();
-var gltfMaterial;
 
 class VolPlayer extends THREE.Object3D {
 
@@ -143,7 +142,9 @@ class VolPlayer extends THREE.Object3D {
 
                 for (let i = 0, len = frameGeometry.length; i < len; i++) {
                     holder.children[i].geometry = frameGeometry[i];
-                    holder.children[i].material = frameGeometry[i].material;
+                    holder.children[i].material.map = frameGeometry[i].materialMap;
+                    holder.children[i].material.needsUpdate = true;
+                
                     // setTexture(holder.children[i]);
                 }
 
@@ -219,7 +220,8 @@ function loadFirstFrame({ holder, material, frame, baseObjectURL, baseTextureURL
 
             geometries.forEach((geometry, i) => {
                 holder.children[i].geometry = geometry;
-                holder.children[i].material = geometry.material;
+                holder.children[i].material.map = geometry.materialMap;
+                holder.children[i].material.needsUpdate = true;
                 // setTexture(holder.children[i]);
 
             });
@@ -295,10 +297,9 @@ function loadGeometries({ path, texturePath, baseObjectURL, baseTextureURL, asse
                 break;
             case ".gltf":
                 gltfLoader.load(`${baseObjectURL}${path}`, function ( gltf ) {
-                    console.log(gltf.scene);
                     // gltf.scene.children[0].geometry.texturePath = texturePath;
-                    gltfMaterial = gltf.scene.children[0].material; 
-                    gltf.scene.children[0].geometry.material = gltfMaterial;
+                    var gltfMaterial = gltf.scene.children[0].material; 
+                    gltf.scene.children[0].geometry.materialMap = gltfMaterial.map;
                     loadTextures([gltf.scene.children[0].geometry]);
                 }, null, null );
                 break;  
@@ -312,7 +313,6 @@ function loadGeometries({ path, texturePath, baseObjectURL, baseTextureURL, asse
 
 function setTexture(object) {
 
-    console.log("312 setTexture");
     const geometry = object.geometry;
     const material = object.material;
 
