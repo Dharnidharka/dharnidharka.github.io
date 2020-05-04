@@ -213,6 +213,7 @@ function loadFirstFrame({ holder, material, frame, baseObjectURL, baseTextureURL
                 for (let i = 0; i < requiredGeometries; i++) {
     
                     const mesh = new THREE.Mesh(tmpGeometry, material);
+                    mesh.castShadow = true;
                     holder.add(mesh);
     
                 }

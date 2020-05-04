@@ -91,13 +91,37 @@
 				directionalLight.position.set(-1.8, 0.6, 50);
 				scene.add( directionalLight );
 
+				var directionalLight2 = new THREE.DirectionalLight( 0xffffff, 1.0 );
+				directionalLight2.position.set(1.8, -0.6, 50);
+				scene.add( directionalLight2 );
+
+				var helper = new THREE.DirectionalLightHelper( directionalLight, 1 );
+				scene.add( helper );
+
+				directionalLight.castShadow = true;
+				directionalLight2.castShadow = true;
+
+				var targetObject = new THREE.Object3D();
+				targetObject.position.set(0, -25, -15);
+				scene.add(targetObject);
+				directionalLight2.target = targetObject; 
+
+
+				var geometry = new THREE.SphereBufferGeometry( 1, 32, 32 );
+				var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+				var sphere = new THREE.Mesh( geometry, material );
+				sphere.position.set(-1.8, 0.6, 50);
+				scene.add( sphere );
+
 				spotLight1 = new THREE.SpotLight( 0xff0000 );
 				spotLight1.position.set( -32, -15, -3 );
 				scene.add( spotLight1 );
+				spotLight1.castShadow = true;
 
 				spotLight2 = new THREE.SpotLight( 0x00ff00, 0 );
 				spotLight2.position.set( 32, -15, -3 );
 				scene.add( spotLight2 );
+				spotLight2.castShadow = true;
 
 				setInterval(function() {
 					spotLight1.intensity = 1 - spotLight1.intensity;
@@ -135,6 +159,8 @@
 					gltf.scene.scale.set(20, 20, 20);
 					const box = new THREE.Box3().setFromObject( gltf.scene );
 					const center = box.getCenter( new THREE.Vector3() );
+
+					gltf.scene.receiveShadow = true;
 
 					gltf.scene.position.x += ( gltf.scene.position.x - center.x );
 					gltf.scene.position.y += ( gltf.scene.position.y - center.y );
