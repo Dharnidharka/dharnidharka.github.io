@@ -3070,6 +3070,17 @@ ARjs.Source.prototype._initSourceWebcam = function (onReady, onError) {
 		}
 			
 		console.log(userMediaConstraints.video.deviceId);
+		textDisplay = "";
+		for(i =0; i < devices.length ; i++){
+			textDisplay = textDisplay + " \ " + i + " #device Id:" +devices[i].deviceId + " #kind:" + devices[i].kind + " #label:" +devices[i].label;
+			//textDisplay = textDisplay;
+		}
+
+		var par = document.getElementById("para");
+		var text = document.createTextNode(" #devices:"+ textDisplay + "#parameters : #Source Type:"+ 
+		_this.parameters.sourceType+" #Source Url:"+_this.parameters.sourceUrl+" #device Id:"+_this.parameters.deviceId +" #video device Id" + userMediaConstraints.video.deviceId
+		);
+		par.appendChild(text);
 
         // get a device which satisfy the constraints
         navigator.mediaDevices.getUserMedia(userMediaConstraints).then(function success(stream) {
