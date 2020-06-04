@@ -3049,11 +3049,21 @@ ARjs.Source.prototype._initSourceWebcam = function (onReady, onError) {
             }
         };
 
-        if (null !== _this.parameters.deviceId) {
-            userMediaConstraints.video.deviceId = {
-                exact: _this.parameters.deviceId
-            };
-        }
+        if(_this.parameters.deviceId == null || _this.parameters.deviceId == undefined) {
+			devices.forEach(function(d) {
+				if(d.kind == "videoinput" && d.label.includes("camera") && d.label.includes("back")) {
+					userMediaConstraints.video.deviceId = {
+						exact: d.deviceId
+					};	
+				}
+			});
+		} else {
+			if (null !== _this.parameters.deviceId) {
+				userMediaConstraints.video.deviceId = {
+					exact: _this.parameters.deviceId
+				};
+			}
+		}
 
         // get a device which satisfy the constraints
         navigator.mediaDevices.getUserMedia(userMediaConstraints).then(function success(stream) {
