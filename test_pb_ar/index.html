@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <!-- three.js library -->
+    <script src='./libs/three.min.js'></script>
+    <!-- ar.js -->
+    <script src="./build/ar.js"></script>
+    <script src="./libs/OrbitControls.js"></script>
+    <script src="./libs/GLTFLoader.js"></script>
+    <script src="./libs/DRACOLoader.js"></script>
+    <script src="./libs/zingtouch.min.js"></script>
+    <script>THREEx.ArToolkitContext.baseURL = './'</script>
+    <style>
+        #loading {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            z-index: 100;
+        }
+        #rotate {
+            display: none;
+            background: #eee;
+            padding: 10px;
+            border: none;
+            border-radius: 40%;
+            cursor: pointer;
+        }
+        #rotate {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            margin: 0 auto;
+        }
+        .active {
+            background: #6facb3 !important;
+        }
+    </style>
+</head>
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+    <button id="rotate" class="button">
+        <img src="./img/rotate.png" alt="recenter" width="64px" height="48px"></img>
+    </button>
+    <div id="loading-screen">
+        <img id="loading" src="./img/loading_screen.gif" alt="loading"></img>
+    </div>
+</body>
+<script src="index.js"></script>
+</html>
