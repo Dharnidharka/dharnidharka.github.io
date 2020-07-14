@@ -10,6 +10,8 @@
 
 <body>
 
+  <div class="loader"></div>
+
   <div id="container"></div>
 
   <script src="./js/three.min.js"></script>
@@ -40,6 +42,7 @@
 
       var loadingManager = new THREE.LoadingManager(function () {
 
+        hideLoader()
         scene.add(elf);
 
       });
@@ -78,6 +81,10 @@
 
       window.addEventListener('resize', onWindowResize, false);
 
+    }
+
+    function hideLoader() {
+      document.getElementsByClassName('loader')[0].style.display = 'none'
     }
 
     function onWindowResize() {
