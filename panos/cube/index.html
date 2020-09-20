@@ -1,191 +1,122 @@
-<!-- Licensed under a BSD license. See license.html for license -->
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
+	<head>
+		<title>Test: Cube panorama</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link type="text/css" rel="stylesheet" href="css/main.css">
+	</head>
+	<body>
+    <div id="container"></div>
+    
+		<script type="module">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Three.js - Offscreen Canvas</title>
-  <style>
-    body {
-      margin: 0;
-    }
+			import * as THREE from '../build/three.module.js';
 
-    #c {
-      width: 100vw;
-      height: 100vh;
-      display: block;
-    }
+			import { OrbitControls } from './js/OrbitControls.js';
 
-    #c:focus {
-      outline: none;
-    }
-  </style>
-</head>
+			var camera, controls;
+			var renderer;
+			var scene;
 
-<body>
-  <canvas id="c" tabindex="1"></canvas>
-</body>
-<script type="module">
+			init();
+			animate();
 
-  import { init } from './js/shared-orbitcontrols.js';
+			function init() {
 
-  const mouseEventHandler = makeSendPropertiesHandler([
-    'ctrlKey',
-    'metaKey',
-    'shiftKey',
-    'button',
-    'clientX',
-    'clientY',
-    'pageX',
-    'pageY',
-  ]);
-  const wheelEventHandlerImpl = makeSendPropertiesHandler([
-    'deltaX',
-    'deltaY',
-  ]);
-  const keydownEventHandler = makeSendPropertiesHandler([
-    'ctrlKey',
-    'metaKey',
-    'shiftKey',
-    'keyCode',
-  ]);
+				var container = document.getElementById( 'container' );
 
-  function wheelEventHandler(event, sendFn) {
-    event.preventDefault();
-    wheelEventHandlerImpl(event, sendFn);
-  }
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
 
-  function preventDefaultHandler(event) {
-    event.preventDefault();
-  }
+				scene = new THREE.Scene();
 
-  function copyProperties(src, properties, dst) {
-    for (const name of properties) {
-      dst[name] = src[name];
-    }
-  }
+				camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 100 );
+				camera.position.z = 0.01;
 
-  function makeSendPropertiesHandler(properties) {
-    return function sendProperties(event, sendFn) {
-      const data = { type: event.type };
-      copyProperties(event, properties, data);
-      sendFn(data);
-    };
-  }
+				controls = new OrbitControls( camera, renderer.domElement );
+				controls.enableZoom = false;
+				controls.enablePan = false;
+				controls.enableDamping = true;
+				controls.rotateSpeed = - 0.25;
 
-  function touchEventHandler(event, sendFn) {
-    const touches = [];
-    const data = { type: event.type, touches };
-    for (let i = 0; i < event.touches.length; ++i) {
-      const touch = event.touches[i];
-      touches.push({
-        pageX: touch.pageX,
-        pageY: touch.pageY,
-      });
-    }
-    sendFn(data);
-  }
+				var textures = getTexturesFromAtlasFile( "textures/testcube.jpg", 6 );
 
-  // The four arrow keys
-  const orbitKeys = {
-    '37': true,  // left
-    '38': true,  // up
-    '39': true,  // right
-    '40': true,  // down
-  };
-  function filteredKeydownEventHandler(event, sendFn) {
-    const { keyCode } = event;
-    if (orbitKeys[keyCode]) {
-      event.preventDefault();
-      keydownEventHandler(event, sendFn);
-    }
-  }
+				var materials = [];
 
-  let nextProxyId = 0;
-  class ElementProxy {
-    constructor(element, worker, eventHandlers) {
-      this.id = nextProxyId++;
-      this.worker = worker;
-      const sendEvent = (data) => {
-        this.worker.postMessage({
-          type: 'event',
-          id: this.id,
-          data,
-        });
-      };
+				for ( var i = 0; i < 6; i ++ ) {
 
-      // register an id
-      worker.postMessage({
-        type: 'makeProxy',
-        id: this.id,
-      });
-      sendSize();
-      for (const [eventName, handler] of Object.entries(eventHandlers)) {
-        element.addEventListener(eventName, function (event) {
-          handler(event, sendEvent);
-        });
-      }
+					materials.push( new THREE.MeshBasicMaterial( { map: textures[ i ] } ) );
 
-      function sendSize() {
-        const rect = element.getBoundingClientRect();
-        sendEvent({
-          type: 'size',
-          left: rect.left,
-          top: rect.top,
-          width: element.clientWidth,
-          height: element.clientHeight,
-        });
-      }
+				}
 
-      // really need to use ResizeObserver
-      window.addEventListener('resize', sendSize);
-    }
-  }
+				var skyBox = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), materials );
+				skyBox.geometry.scale( 1, 1, - 1 );
+				scene.add( skyBox );
 
-  function startWorker(canvas) {
-    canvas.focus();
+				window.addEventListener( 'resize', onWindowResize, false );
 
-    const offscreen = canvas.transferControlToOffscreen();
-    const worker = new Worker('js/offscreen.js', { type: 'module' });
+			}
 
-    const eventHandlers = {
-      contextmenu: preventDefaultHandler,
-      mousedown: mouseEventHandler,
-      mousemove: mouseEventHandler,
-      mouseup: mouseEventHandler,
-      touchstart: touchEventHandler,
-      touchmove: touchEventHandler,
-      touchend: touchEventHandler,
-      wheel: wheelEventHandler,
-      keydown: filteredKeydownEventHandler,
-    };
-    const proxy = new ElementProxy(canvas, worker, eventHandlers);
-    worker.postMessage({
-      type: 'start',
-      canvas: offscreen,
-      canvasId: proxy.id,
-    }, [offscreen]);
+			function getTexturesFromAtlasFile( atlasImgUrl, tilesNum ) {
 
-    console.log('using OffscreenCanvas');  /* eslint-disable-line no-console */
-  }
+				var textures = [];
 
-  function startMainPage(canvas) {
-    init({ canvas, inputElement: canvas });
-    console.log('using regular canvas');  /* eslint-disable-line no-console */
-  }
+				for ( var i = 0; i < tilesNum; i ++ ) {
 
-  function main() {  /* eslint consistent-return: 0 */
-    const canvas = document.querySelector('#c');
-    if (canvas.transferControlToOffscreen) {
-      startWorker(canvas);
-    } else {
-      startMainPage(canvas);
-    }
-  }
+					textures[ i ] = new THREE.Texture();
 
-  main();
+				}
 
-</script>
+				var imageObj = new Image();
 
+				imageObj.onload = function () {
+
+					var canvas, context;
+					var tileWidth = imageObj.height;
+
+					for ( var i = 0; i < textures.length; i ++ ) {
+
+						canvas = document.createElement( 'canvas' );
+						context = canvas.getContext( '2d' );
+						canvas.height = tileWidth;
+						canvas.width = tileWidth;
+						context.drawImage( imageObj, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth );
+						textures[ i ].image = canvas;
+						textures[ i ].needsUpdate = true;
+
+					}
+
+				};
+
+				imageObj.src = atlasImgUrl;
+
+				return textures;
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				controls.update(); // required when damping is enabled
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
 </html>

@@ -273,16 +273,15 @@ var OrbitControls = function ( object, domElement ) {
 	this.dispose = function () {
 
 		scope.domElement.removeEventListener( 'contextmenu', onContextMenu, false );
-
-		scope.domElement.removeEventListener( 'pointerdown', onPointerDown, false );
+		scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
 		scope.domElement.removeEventListener( 'wheel', onMouseWheel, false );
 
 		scope.domElement.removeEventListener( 'touchstart', onTouchStart, false );
 		scope.domElement.removeEventListener( 'touchend', onTouchEnd, false );
 		scope.domElement.removeEventListener( 'touchmove', onTouchMove, false );
 
-		scope.domElement.ownerDocument.removeEventListener( 'pointermove', onPointerMove, false );
-		scope.domElement.ownerDocument.removeEventListener( 'pointerup', onPointerUp, false );
+		scope.domElement.ownerDocument.removeEventListener( 'mousemove', onMouseMove, false );
+		scope.domElement.ownerDocument.removeEventListener( 'mouseup', onMouseUp, false );
 
 		scope.domElement.removeEventListener( 'keydown', onKeyDown, false );
 
@@ -774,55 +773,9 @@ var OrbitControls = function ( object, domElement ) {
 	// event handlers - FSM: listen for events and reset state
 	//
 
-	function onPointerDown( event ) {
-
-		if ( scope.enabled === false ) return;
-
-		switch ( event.pointerType ) {
-
-			case 'mouse':
-				onMouseDown( event );
-				break;
-
-			// TODO touch
-
-		}
-
-	}
-
-	function onPointerMove( event ) {
-
-		if ( scope.enabled === false ) return;
-
-		switch ( event.pointerType ) {
-
-			case 'mouse':
-				onMouseMove( event );
-				break;
-
-			// TODO touch
-
-		}
-
-	}
-
-	function onPointerUp( event ) {
-
-		if ( scope.enabled === false ) return;
-
-		switch ( event.pointerType ) {
-
-			case 'mouse':
-				onMouseUp( event );
-				break;
-
-			// TODO touch
-
-		}
-
-	}
-
 	function onMouseDown( event ) {
+
+		if ( scope.enabled === false ) return;
 
 		// Prevent the browser from scrolling.
 		event.preventDefault();
@@ -921,8 +874,8 @@ var OrbitControls = function ( object, domElement ) {
 
 		if ( state !== STATE.NONE ) {
 
-			scope.domElement.ownerDocument.addEventListener( 'pointermove', onPointerMove, false );
-			scope.domElement.ownerDocument.addEventListener( 'pointerup', onPointerUp, false );
+			scope.domElement.ownerDocument.addEventListener( 'mousemove', onMouseMove, false );
+			scope.domElement.ownerDocument.addEventListener( 'mouseup', onMouseUp, false );
 
 			scope.dispatchEvent( startEvent );
 
@@ -972,8 +925,8 @@ var OrbitControls = function ( object, domElement ) {
 
 		handleMouseUp( event );
 
-		scope.domElement.ownerDocument.removeEventListener( 'pointermove', onPointerMove, false );
-		scope.domElement.ownerDocument.removeEventListener( 'pointerup', onPointerUp, false );
+		scope.domElement.ownerDocument.removeEventListener( 'mousemove', onMouseMove, false );
+		scope.domElement.ownerDocument.removeEventListener( 'mouseup', onMouseUp, false );
 
 		scope.dispatchEvent( endEvent );
 
@@ -1171,7 +1124,7 @@ var OrbitControls = function ( object, domElement ) {
 
 	scope.domElement.addEventListener( 'contextmenu', onContextMenu, false );
 
-	scope.domElement.addEventListener( 'pointerdown', onPointerDown, false );
+	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	scope.domElement.addEventListener( 'wheel', onMouseWheel, false );
 
 	scope.domElement.addEventListener( 'touchstart', onTouchStart, false );
