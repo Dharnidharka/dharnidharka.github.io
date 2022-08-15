@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three.js webgl - glTF loader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+
+    <div id="loading">Loading...</div>
+
+    <script src="./build/three.min.js"></script>
+
+    <script src="./js/controls/OrbitControls.js"></script>
+
+    <script src="./js/loaders/GLTFLoader.js"></script>
+    <script src="./js/loaders/DRACOLoader.js"></script>
+
+
+    <script>
+
+        let camera, scene, renderer;
+
+        init();
+        render();
+
+        function init() {
+
+            console.log("init")
+
+            const container = document.createElement('div');
+            document.body.appendChild(container);
+
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100000);
+            camera.position.set(4, 125, 61);
+
+            scene = new THREE.Scene();
+
+            var ambientLight = new THREE.AmbientLight(0x444444);
+            ambientLight.name = "ambientLight";
+            scene.add(ambientLight);
+
+            var directionalLight = new THREE.DirectionalLight(0xffffff, 0.54);
+            directionalLight.position.set(-80, -60, 80).normalize(), scene.add(directionalLight);
+            directionalLight.name = "directionalLight1";
+
+            var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.37);
+            directionalLight2.position.set(80, -40, 40).normalize(), scene.add(directionalLight2);
+            directionalLight2.name = "directionalLight2";
+
+            var directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.44);
+            directionalLight3.position.set(-20, -80, -80).normalize(), scene.add(directionalLight3);
+            directionalLight3.name = "directionalLight3";
+
+            var directionalLight4 = new THREE.DirectionalLight(0xffffff, 0.7);
+            directionalLight4.position.set(0, 100, 0).normalize(), scene.add(directionalLight4);
+            directionalLight4.name = "directionalLight4";
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0xefefef, 1.0);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.5;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(renderer.domElement);
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.addEventListener('change', render); // use if there is no animation loop
+            // controls.minDistance = 2;
+            // controls.maxDistance = 100;
+            controls.target.set(0, 0, 0);
+            controls.update();
+
+            loadModel();
+
+            window.addEventListener('resize', onWindowResize);
+
+        }
+
+        function loadModel() {
+            const loader = new THREE.GLTFLoader();
+            const dracoLoader = new THREE.DRACOLoader();
+            dracoLoader.setDecoderPath('js/draco/');
+            loader.setDRACOLoader(dracoLoader);
+
+            loader.load('models/klaza.glb', function (gltf) {
+
+                gltf.scene.scale.multiplyScalar(0.01);
+                // gltf.scene.traverse((child) => {
+                //     child.position.set(0, 0, 0);
+                // });
+                // gltf.scene.scale.multiplyScalar(0.1);    
+
+                scene.add(gltf.scene);
+
+                document.getElementById('loading').style.display = "none";
+
+                render();
+
+            });
+
+            window.scene = scene;
+
+
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            render();
+
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+
+        }
+
+    </script>
+
+</body>
+
+</html>
